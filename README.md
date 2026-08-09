@@ -57,8 +57,8 @@ tam, kde ju manuál necháva v poslednom kole (sk. 1 → sála, sk. 2 → čajov
 ## Prečo sú trasy práve tieto
 
 Stanovištia idú do kruhu po areáli v poradí z manuálu (s. 3): zasadačka →
-záhrada → mantinely → Panna Mária → pred skautskou → obývačka → tanečná →
-oľga → čajovňa → sála → späť. Skupinky sa po ňom posúvajú vždy o jedno
+záhrada → Panna Mária → mantinely → pred skautskou → obývačka → tanečná →
+oľga → čajovňa → sála → späť. (Po oprave rozpisu sedí kruh s písmenami A–J.) Skupinky sa po ňom posúvajú vždy o jedno
 stanovište, presne podľa tabuľky na s. 4:
 
 ```
@@ -294,6 +294,10 @@ npm test
 - `test/trasy.test.js` — všetky vlastnosti trás a rozdelenia z tabuľky vyššie,
   vrátane porovnania rozpisu vezírov s ručne prepísanou tabuľkou zo s. 4 manuálu
   a hrubou silou overenej päťky dovolených trás
+- `test/zoznam.test.js` — ručne odsúhlasený zoznam všetkých detí. Nezávislý od
+  Excelu aj od generátora: keď sa dáta rozídu so zoznamom, povie presne KTO
+  pribudol alebo zmizol. Odlišný zápis mena (diakritika, veľké písmená) test
+  nezhodí, len ho vypíše
 - `test/sken.test.js` — vyhodnotenie skenu (správne, zlé, opakované, po dohratí)
 - `test/api.test.js` — celá hra cez HTTP: 106 detí × 10 kôl = 1060 skenov bez
   jediného zlého, plus override, reset, rozpis a nezávislosť jedného QR kódu

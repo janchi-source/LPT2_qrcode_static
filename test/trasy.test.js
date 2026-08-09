@@ -83,30 +83,47 @@ test('žiadne dieťa nezačína vo svojej štvrti', () => {
 // stĺpce = skupinky 1–10, hodnoty = miesta. Toto je zdroj pravdy pre to, kade
 // chodia vezíri — appka sa mu musí podriadiť, nie naopak.
 const MANUAL = [
-  ['zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'Panna Mária', 'mantinely', 'záhrada'],
-  ['záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'Panna Mária', 'mantinely'],
-  ['mantinely', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'Panna Mária'],
-  ['Panna Mária', 'mantinely', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská'],
-  ['skautská', 'Panna Mária', 'mantinely', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka'],
-  ['obývačka', 'skautská', 'Panna Mária', 'mantinely', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná'],
-  ['tanečná', 'obývačka', 'skautská', 'Panna Mária', 'mantinely', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga'],
-  ['oľga', 'tanečná', 'obývačka', 'skautská', 'Panna Mária', 'mantinely', 'záhrada', 'zasadačka', 'sála', 'čajovňa'],
-  ['čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'Panna Mária', 'mantinely', 'záhrada', 'zasadačka', 'sála'],
-  ['sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'Panna Mária', 'mantinely', 'záhrada', 'zasadačka'],
+  ['zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'mantinely', 'Panna Mária', 'záhrada'],
+  ['záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'mantinely', 'Panna Mária'],
+  ['Panna Mária', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'mantinely'],
+  ['mantinely', 'Panna Mária', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská'],
+  ['skautská', 'mantinely', 'Panna Mária', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka'],
+  ['obývačka', 'skautská', 'mantinely', 'Panna Mária', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga', 'tanečná'],
+  ['tanečná', 'obývačka', 'skautská', 'mantinely', 'Panna Mária', 'záhrada', 'zasadačka', 'sála', 'čajovňa', 'oľga'],
+  ['oľga', 'tanečná', 'obývačka', 'skautská', 'mantinely', 'Panna Mária', 'záhrada', 'zasadačka', 'sála', 'čajovňa'],
+  ['čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'mantinely', 'Panna Mária', 'záhrada', 'zasadačka', 'sála'],
+  ['sála', 'čajovňa', 'oľga', 'tanečná', 'obývačka', 'skautská', 'mantinely', 'Panna Mária', 'záhrada', 'zasadačka'],
 ];
-// Skratky z manuálu → index stanovišťa v hernom kruhu.
+// Miesta z manuálu → index stanovišťa v hernom kruhu.
 const INDEX = {
-  'zasadačka': 0, 'záhrada': 1, 'mantinely': 2, 'Panna Mária': 3, 'skautská': 4,
+  'zasadačka': 0, 'záhrada': 1, 'Panna Mária': 2, 'mantinely': 3, 'skautská': 4,
   'obývačka': 5, 'tanečná': 6, 'oľga': 7, 'čajovňa': 8, 'sála': 9,
 };
 
-test('kruh stanovíšť ide v poradí z manuálu (zasadačka → záhrada → mantinely → …)', () => {
+test('kruh stanovíšť ide v poradí z manuálu (zasadačka → záhrada → Panna Mária → mantinely → …)', () => {
   const podlaManualu = MANUAL[0].map((m) => INDEX[m]);
   assert.strictEqual(podlaManualu[0], 0);
   // Prvý stĺpec manuálu čítaný po kolách je práve poradie kruhu.
   const kruhZManualu = MANUAL.map((riadok) => INDEX[riadok[0]]);
   assert.deepStrictEqual(kruhZManualu, [...Array(N).keys()],
     'poradie stanovíšť v STANOVISTIA nesedí s krúžením v manuáli');
+});
+
+test('písmená stanovíšť idú po kruhu A → J, C je pred D', () => {
+  // Po oprave rozpisu (Panna Mária pred mantinelami) sedí kruh s abecedou.
+  // Keby niekto poradie v STANOVISTIA znova prehodil, tento test to povie
+  // hneď a menom — v tabuľke „Kde deti práve stoja" sa to inak prejaví len
+  // tak, že stĺpce idú A, B, D, C, … a ľahko sa to prehliadne.
+  assert.deepStrictEqual(hra.STANOVISTIA.map((s) => s.letter),
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']);
+  assert.deepStrictEqual(hra.STANOVISTIA.map((s) => s.i), [...Array(N).keys()],
+    'index stanovišťa musí sedieť s jeho poradím v poli');
+  // C = Duangango pri Panne Márii, D = Toaleťák na mantineloch — aktivity
+  // ostávajú na svojich miestach, mení sa len ich poradie na kruhu.
+  assert.strictEqual(hra.stanoviste(2).miesto, 'pri Panne Márii');
+  assert.strictEqual(hra.stanoviste(2).nazov, 'Duangango');
+  assert.strictEqual(hra.stanoviste(3).miesto, 'mantinely');
+  assert.strictEqual(hra.stanoviste(3).nazov, 'Toaleťák');
 });
 
 test('rozpis vezírov sedí s tabuľkou na s. 4 manuálu, políčko po políčku', () => {
