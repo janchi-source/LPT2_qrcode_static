@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#84309c">
+  <title>Vezír QR — LPT2</title>
+  <link rel="stylesheet" href="scan.css">
+</head>
+<body>
+  <img class="brand-logo" src="design/logo.png" alt="LPT2">
+
+  <!-- Zvuky: „duuuuuh" keď sken sedí, „e-eeeeh" keď je dieťa na zlom mieste. -->
+  <audio id="snd-ok" src="sounds/patri.mp3" preload="auto"></audio>
+  <audio id="snd-zle" src="sounds/nepatri.mp3" preload="auto"></audio>
+
+  <div id="offline-banner">⚠️ Server nedostupný — skontroluj WiFi. Skeny sa NEukladajú!</div>
+  <div id="env-banner"></div>
+
+  <main class="wrap">
+    <!-- Krok 1: kde stojím -->
+    <section id="setup" class="glass">
+      <h1 class="title">Vezír QR</h1>
+      <p class="lead">Vyber stanovište, na ktorom práve stojíš. Appka pri každom skene povie,
+        či dieťa patrí sem (zelená, ide so skupinkou ďalej), alebo nie (červená, prevádza sa
+        do ďalšej skupinky). Čas ani kolá neriešiš.</p>
+
+      <label class="field">
+        <span class="field-label">Stanovište</span>
+        <select id="sel-stanoviste"></select>
+      </label>
+
+      <p id="setup-hint" class="hint"></p>
+      <button class="btn btn-gold" onclick="potvrdit()">Potvrdiť a skenovať</button>
+
+      <div class="link-row">
+        <a href="rozpis.html">Rozpis</a>
+        <a href="admin.html">Prehľad</a>
+      </div>
+    </section>
+
+    <!-- Krok 2: skenovanie -->
+    <section id="scanner-ui" style="display:none">
+      <div class="glass topbar">
+        <div class="grow">
+          <div class="station" id="hdr-stanoviste"></div>
+          <div class="meta" id="hdr-aktivita"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="spatNaVyber()">Zmeniť</button>
+      </div>
+
+      <div id="scan-result"></div>
+
+      <div class="glass scanner-card">
+        <div id="reader"></div>
+        <p id="cam-note" class="cam-note"></p>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btn-cam-start" onclick="spustiKameru()">Spustiť</button>
+          <button class="btn btn-ghost" id="btn-cam-stop" onclick="zastavKameru()">Zastaviť</button>
+        </div>
+        <div class="manual">
+          <input id="manual-kod" inputmode="numeric" placeholder="alebo zadaj číslo náramku">
+          <button class="btn btn-ghost btn-sm" onclick="rucnySken()">OK</button>
+        </div>
+      </div>
+
+      <div class="glass">
+        <h2 class="section-title">Naskenované na tomto stanovišti <span class="count" id="pocet">0</span></h2>
+        <div id="zoznam" class="list"><span class="empty">Zatiaľ nikto.</span></div>
+      </div>
+
+      <button class="btn btn-ghost" onclick="vycistiZoznam()">Vyčistiť zoznam</button>
+      <p class="footnote">Zoznam je len pomôcka v tomto telefóne. Postup detí je uložený na serveri
+        a čistením sa nič nestratí.</p>
+    </section>
+  </main>
+
+  <script src="vendor/html5-qrcode.min.js"></script>
+  <script src="common.js"></script>
+  <script>
+    let INFO = null;
+    let mojeStanoviste = localStorage.getItem('lpt2s_stanoviste');
+    mojeStanoviste = mojeStanoviste === null ? null : parseInt(mojeStanoviste, 10);
+    let scanner = null;
+    let poslednyKod = '';
+    let poslednyCas = 0;
+    let historia = [];
+    try { historia = JSON.parse(localStorage.getItem('lpt2s_historia') || '[]'); } catch (e) { historia = []; }
+
+    function popis(i) {
+      const st = INFO && INFO.stanovistia[i];
+      return st ? stanovisteKratko(st) : '—';
+    }
+
+    // --- Výber stanovišťa ----------------------------------------------------
+
+    function naplnVyber() {
+      const sel = el('sel-stanoviste');
+      sel.innerHTML = INFO.stanovistia.map((s) =>
+        `<option value="${s.i}" ${s.i === mojeStanoviste ? 'selected' : ''}>${esc(stanovisteKratko(s))}</option>`).join('');
+      const uprav = () => {
+        const s = INFO.stanovistia[parseInt(sel.value, 10)];
+        el('setup-hint').textContent = s ? `Aktivita: ${s.nazov}. Materiál: ${s.material}.` : '';
+      };
+      sel.onchange = uprav;
+      uprav();
+    }
+
+    function potvrdit() {
+      mojeStanoviste = parseInt(el('sel-stanoviste').value, 10);
+      localStorage.setItem('lpt2s_stanoviste', mojeStanoviste);
+      odomkniZvuky();
+      ukazSkener();
+    }
+
+    function spatNaVyber() {
+      zastavKameru();
+      el('scanner-ui').style.display = 'none';
+      el('setup').style.display = 'block';
+      naplnVyber();
+    }
+
+    function ukazSkener() {
+      el('setup').style.display = 'none';
+      el('scanner-ui').style.display = 'block';
+      const s = INFO.stanovistia[mojeStanoviste];
+      el('hdr-stanoviste').textContent = popis(mojeStanoviste);
+      el('hdr-aktivita').textContent = s ? s.nazov : '';
+      vykresliZoznam();
+      spustiKameru();
+    }
+
+    // --- Zvuky ---------------------------------------------------------------
+    // Mobilné prehliadače nepustia zvuk, kým používateľ na stránke niečo
+    // neťukne — odomkneme ich pri potvrdení stanovišťa.
+    let zvukyOdomknute = false;
+    function odomkniZvuky() {
+      if (zvukyOdomknute) return;
+      zvukyOdomknute = true;
+      for (const id of ['snd-ok', 'snd-zle']) {
+        const a = el(id);
+        if (!a) continue;
+        a.muted = true;
+        const p = a.play();
+        if (p && p.then) p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(() => { a.muted = false; });
+        else { a.pause(); a.currentTime = 0; a.muted = false; }
+      }
+    }
+    function prehraj(id) {
+      const a = el(id);
+      if (!a) return;
+      try {
+        a.currentTime = 0;
+        const p = a.play();
+        // Zvuk je len doplnok — nikdy nesmie zhodiť sken.
+        if (p && p.catch) p.catch(() => {});
+      } catch (e) { /* ticho */ }
+    }
+
+    // --- Kamera --------------------------------------------------------------
+    // Prehliadač pustí ku kamere len na „secure context" — https:// alebo
+    // localhost. Na tábore sa skenuje z nasadenej Vercel adresy.
+    function problemProstredia() {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext) return null;
+      return location.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(location.hostname) ? 'http' : 'insecure';
+    }
+
+    function ukazEnvBanner() {
+      const problem = problemProstredia();
+      const box = el('env-banner');
+      if (!problem) { box.innerHTML = ''; box.style.display = 'none'; return false; }
+      box.style.display = 'block';
+      box.innerHTML = '<strong>Kamera na tejto adrese nepôjde.</strong><br>' +
+        'Prehliadač pustí kameru len na zabezpečenej <code>https://</code> adrese. ' +
+        'Otvor appku cez adresu z Vercelu. Kódy sa dajú zadať aj ručne.';
+      return true;
+    }
+
+    function tlacidlaKamery(bezi, poznamka) {
+      el('btn-cam-start').disabled = bezi;
+      el('btn-cam-stop').disabled = !bezi;
+      el('cam-note').innerHTML = poznamka || '';
+    }
+
+    function textChybyKamery(e) {
+      const name = (e && (e.name || e.type)) || String(e);
+      const spolu = ' Číslo náramku môžeš zadať aj ručne nižšie.';
+      if (/NotAllowed|Permission/i.test(name)) {
+        return '⚠️ <strong>Prístup ku kamere je zamietnutý.</strong> Povoľ kameru pre túto stránku ' +
+          '(Safari: ikonka <strong>AA</strong> v adresnom riadku → Nastavenia webu → Kamera → Povoliť; ' +
+          'Chrome: ikonka zámku → Povolenia).' + spolu;
+      }
+      if (/NotFound|Overconstrained|DevicesNotFound/i.test(name)) return '⚠️ <strong>Kamera sa nenašla.</strong>' + spolu;
+      if (/NotReadable|TrackStart/i.test(name)) return '⚠️ <strong>Kameru používa iná aplikácia.</strong> Zavri fotoaparát a skús znova.' + spolu;
+      if (/Security/i.test(name)) return '⚠️ <strong>Stránka nie je zabezpečená</strong>, kamera nepôjde.' + spolu;
+      return '⚠️ Kamera sa nespustila: ' + esc(name) + spolu;
+    }
+
+    async function spustiKameru() {
+      if (scanner) return;
+      if (ukazEnvBanner()) { tlacidlaKamery(false, textChybyKamery({ name: 'SecurityError' })); return; }
+      tlacidlaKamery(true, 'Namier kameru na QR kód na náramku.');
+      scanner = new Html5Qrcode('reader');
+      const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+      try {
+        await scanner.start({ facingMode: 'environment' }, config, naSken, () => {});
+      } catch (e) {
+        // Niektoré telefóny nevedia vyhovieť facingMode — skús zadnú kameru
+        // vybrať zo zoznamu ručne, až potom to vzdaj.
+        try {
+          const cams = await Html5Qrcode.getCameras();
+          if (!cams || !cams.length) throw e;
+          const zadna = cams.find((c) => /back|rear|zadn|environment/i.test(c.label)) || cams[cams.length - 1];
+          await scanner.start(zadna.id, config, naSken, () => {});
+        } catch (e2) {
+          scanner = null;
+          tlacidlaKamery(false, textChybyKamery(e2 && e2.name ? e2 : e));
+        }
+      }
+    }
+
+    function zastavKameru() {
+      if (scanner) {
+        scanner.stop().catch(() => {}).finally(() => { el('reader').innerHTML = ''; });
+        scanner = null;
+      }
+      tlacidlaKamery(false, 'Kamera je vypnutá.');
+    }
+
+    function naSken(text) {
+      // Kamera číta ten istý kód mnohokrát za sekundu.
+      const teraz = Date.now();
+      if (text === poslednyKod && teraz - poslednyCas < 3000) return;
+      poslednyKod = text; poslednyCas = teraz;
+      posliSken(text);
+    }
+
+    function rucnySken() {
+      const v = el('manual-kod').value.trim();
+      if (v) { posliSken(v); el('manual-kod').value = ''; }
+    }
+
+    // --- Sken ----------------------------------------------------------------
+
+    async function posliSken(kod) {
+      const r = await api('/api/sken', 'POST', { kod, stanoviste: mojeStanoviste });
+      if (r.error) {
+        el('offline-banner').style.display = 'block';
+        ukazVysledok('error', 'Chyba', r.error, '', '');
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+        return;
+      }
+      el('offline-banner').style.display = 'none';
+
+      const meno = [r.nadpis, r.priezvisko].filter(Boolean).join(' ');
+      const kolo = `kolo ${r.kolo} / ${r.pocet_kol}`;
+
+      if (r.vysledok === 'ok') {
+        // Patrí sem — ide so svojou skupinkou na nasledujúce stanovište v kruhu.
+        ukazVysledok('home', meno, '✅ PATRÍ SEM', '↻ SO SKUPINKOU NA: ' + popis(r.dalsie),
+          `skupinka ${r.skupinka_teraz} · ${kolo}`);
+        prehraj('snd-ok');
+        if (navigator.vibrate) navigator.vibrate(80);
+        pridajDoZoznamu(meno, r.naramok, 'green', popis(r.dalsie));
+
+      } else if (r.vysledok === 'presun') {
+        // Nepatrí sem — prevádza sa do skupinky o stanovište ďalej. Musí to byť
+        // na prvý pohľad iné než „patrí sem": červená, iný zvuk, iná vibrácia.
+        ukazVysledok('move', meno, '⛔ SEM NEPATRÍŠ!',
+          '➡️ DO ĎALŠEJ SKUPINKY: ' + popis(r.dalsie),
+          `zo skupinky ${r.skupinka_teraz} do skupinky ${r.skupinka_potom} · ${kolo}`);
+        prehraj('snd-zle');
+        if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+        pridajDoZoznamu(meno, r.naramok, 'red', popis(r.dalsie));
+
+      } else if (r.vysledok === 'ciel') {
+        ukazVysledok('ciel', meno, '🏁 HOTOVO', `JE DOMA — SKUPINKA ${r.skupina}`,
+          'posledné stanovište, ostáva tu');
+        prehraj('snd-ok');
+        if (navigator.vibrate) navigator.vibrate([80, 60, 160]);
+        pridajDoZoznamu(meno, r.naramok, 'violet', 'HOTOVO');
+
+      } else if (r.vysledok === 'zle_stanoviste') {
+        // Sken sa nezapísal — dieťa tu podľa appky vôbec nemá byť.
+        ukazVysledok('cudzie', meno, '⚠️ NEMÁ TU BYŤ — ' + (r.preco || ''),
+          '↦ MÁ ÍSŤ NA: ' + popis(r.ma_ist_na),
+          `má za sebou ${r.kolo} z ${r.pocet_kol} stanovíšť`);
+        prehraj('snd-zle');
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        pridajDoZoznamu(meno, r.naramok, 'amber', popis(r.ma_ist_na));
+
+      } else if (r.vysledok === 'hotovo') {
+        ukazVysledok('error', meno, r.hlaska, '', '');
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+      } else {
+        ukazVysledok('error', r.nadpis || 'Chyba', r.hlaska || '', '', '');
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      }
+    }
+
+    // Meno, krátky verdikt, a NAJVÄČŠÍM písmom to, čo animátor naozaj potrebuje:
+    // kam dieťa poslať. Musí byť čitateľné na priamom slnku, na jeden pohľad.
+    function ukazVysledok(druh, meno, verdikt, kam, doplnok) {
+      const box = el('scan-result');
+      box.className = druh;
+      box.innerHTML = `<div class="big-name">${esc(meno)}</div>`
+        + (verdikt ? `<div class="verdict">${esc(verdikt)}</div>` : '')
+        + (kam ? `<div class="kam">${esc(kam)}</div>` : '')
+        + (doplnok ? `<div class="kolo">${esc(doplnok)}</div>` : '');
+    }
+
+    // --- Zoznam v telefóne ---------------------------------------------------
+
+    function pridajDoZoznamu(meno, naramok, farba, kam) {
+      historia.unshift({ meno, naramok, farba, kam, st: mojeStanoviste });
+      historia = historia.slice(0, 60);
+      localStorage.setItem('lpt2s_historia', JSON.stringify(historia));
+      vykresliZoznam();
+    }
+
+    function vykresliZoznam() {
+      const tu = historia.filter((h) => h.st === mojeStanoviste);
+      el('pocet').textContent = tu.length;
+      el('zoznam').innerHTML = tu.length
+        ? tu.map((h) => `<div class="list-item"><span class="nm">${esc(h.naramok)} · ${esc(h.meno)}</span>`
+            + `<span class="tag ${h.farba}">${esc(h.kam)}</span></div>`).join('')
+        : '<span class="empty">Zatiaľ nikto.</span>';
+    }
+
+    function vycistiZoznam() {
+      historia = historia.filter((h) => h.st !== mojeStanoviste);
+      localStorage.setItem('lpt2s_historia', JSON.stringify(historia));
+      vykresliZoznam();
+    }
+
+    // --- Štart ---------------------------------------------------------------
+    (async () => {
+      ukazEnvBanner();
+      INFO = await api('/api/info');
+      if (INFO.error) {
+        el('setup').innerHTML = '<h1 class="title">Bez signálu</h1>'
+          + `<p class="lead">${esc(INFO.error)}</p>`;
+        return;
+      }
+      el('offline-banner').style.display = 'none';
+      naplnVyber();
+      if (mojeStanoviste !== null && INFO.stanovistia[mojeStanoviste]) ukazSkener();
+    })();
+  </script>
+</body>
+</html>

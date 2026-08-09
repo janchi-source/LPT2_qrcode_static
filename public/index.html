@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LPT2 2026 — statická rozdeľovacia hra</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Rozdeľovacia hra — statická verzia</h1>
+  <p class="lead">Trasy detí sú vypočítané vopred a počas hry sa nemenia. Nič sa nečaká na kolá,
+    dieťa sa posunie skenom na správnom stanovišti.</p>
+
+  <div class="mriezka">
+    <div class="karta">
+      <h3>📷 Skener</h3>
+      <p class="mala">Pre animátorov na stanovišti. Vyber stanovište a skenuj — appka povie, kam má dieťa ísť ďalej.</p>
+      <a class="btn" href="scan.html">Otvoriť skener</a>
+    </div>
+    <div class="karta">
+      <h3>🗒️ Rozpis</h3>
+      <p class="mala">Papierová záloha: kto má byť na ktorom stanovišti v ktorom kole, rozpis skupiniek a rozdanie náramkov.</p>
+      <a class="btn" href="rozpis.html">Otvoriť rozpis</a>
+    </div>
+    <div class="karta">
+      <h3>📊 Prehľad</h3>
+      <p class="mala">Kde sú deti práve teraz, ručné opravy (override) a reset hry.</p>
+      <a class="btn" href="admin.html">Otvoriť prehľad</a>
+    </div>
+    <div class="karta">
+      <h3>🏷️ Náramky</h3>
+      <p class="mala">QR kódy na tlač — jeden na dieťa, s číslom náramku.</p>
+      <a class="btn" href="qr.html">Otvoriť náramky</a>
+    </div>
+  </div>
+
+  <h2>Ako to funguje</h2>
+  <div class="karta">
+    <ol>
+      <li><strong>Registrácia.</strong> Každé dieťa dostane presne ten náramok, ktorý má v rozpise —
+        číslo náramku určuje jeho trasu. Deti sa podľa čísel zídu na štartových stanovištiach.</li>
+      <li><strong>Kolo.</strong> Na stanovišti sa odohrá icebreaker. Potom animátor naskenuje všetky
+        deti, čo tam sú.</li>
+      <li><strong>Presun.</strong> Appka pri každom skene povie jednu z dvoch vecí:
+        <strong>zelenou</strong> „patrí sem" — ide so svojou skupinkou na nasledujúce stanovište
+        v kruhu; alebo <strong>červenou</strong> „sem nepatríš" — prevádza sa do skupinky
+        o stanovište ďalej a putuje s ňou. Nikdy sa nejde dozadu ani sa nepreskakuje.</li>
+      <li><strong>Miešanie.</strong> V 1. kole sa na stanovišti prevedie 9 detí z 10, ku koncu
+        čoraz menej — skupinka sa tak postupne vytriedi.</li>
+      <li><strong>Koniec.</strong> Po 10 stanovištiach je každá skupinka kompletná vo svojej štvrti,
+        aj so svojimi vezírmi. Vezíri chodia po areáli presne podľa tabuľky zo strany 4 manuálu.</li>
+    </ol>
+    <p class="mala">Deti sú na sebe nezávislé — kto vypadne, nikoho nezdrží; kto zaostane, len
+      dobehne svoje stanovištia neskôr. Zlý sken sa nikam nezapíše, appka len povie, kam dieťa patrí.</p>
+  </div>
+
+  <p class="mala"><a href="/api/db-test">Skúška databázy →</a></p>
+</div>
+</body>
+</html>

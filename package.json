@@ -1,0 +1,13 @@
+{
+  "name": "lpt2-staticka-rozdelovacia-hra",
+  "version": "1.0.0",
+  "description": "Statická rozdeľovacia hra LPT2 2026 — pevné trasy detí, bez závislostí.",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/trasy.test.js && node test/sken.test.js && node test/api.test.js && node test/supabase.test.js"
+  }
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prehľad — LPT2</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="hore">
+    <a href="index.html">Domov</a>
+    <a href="scan.html">Skener</a>
+    <a href="rozpis.html">Rozpis</a>
+    <a href="admin.html" class="aktivny">Prehľad</a>
+    <a href="qr.html">Náramky</a>
+  </nav>
+
+  <h1>Prehľad hry</h1>
+  <p class="lead" id="suhrn">Načítavam…</p>
+
+  <h2>Kde deti práve stoja</h2>
+  <div class="karta"><table id="obsadenost"></table></div>
+
+  <h2>Deti</h2>
+  <div class="karta">
+    <div class="riadok netlacit" style="margin-bottom:10px">
+      <input id="hladaj" placeholder="hľadaj meno alebo číslo náramku" style="flex:1;min-width:200px">
+      <select id="filter-skupina"><option value="">všetky skupinky</option></select>
+      <select id="filter-stav">
+        <option value="">všetky stavy</option>
+        <option value="beh">rozohraté</option>
+        <option value="start">ešte nezačali</option>
+        <option value="hotovo">dokončené</option>
+      </select>
+      <button onclick="nacitaj()">Obnoviť</button>
+    </div>
+    <table>
+      <thead><tr>
+        <th class="c">Náramok</th><th>Meno</th><th class="c">Skupinka</th>
+        <th class="c">Postup</th><th>Teraz má byť na</th><th class="c netlacit">Override</th>
+      </tr></thead>
+      <tbody id="deti"></tbody>
+    </table>
+  </div>
+
+  <h2>Posledné skeny</h2>
+  <div class="karta"><table id="log"></table></div>
+
+  <h2 class="netlacit">Nebezpečná zóna</h2>
+  <div class="karta netlacit">
+    <p class="mala">Reset vymaže postup všetkých detí. Trasy sa tým nemenia — tie sú pevné.
+      Hodí sa po skúšobnom behu, pred ostrou hrou.</p>
+    <button class="nebezpecne" onclick="reset()">Vynulovať postup všetkých detí</button>
+  </div>
+</div>
+
+<script src="common.js"></script>
+<script>
+  let INFO = null;
+  let STAV = null;
+
+  function popis(i) {
+    const s = INFO.stanovistia[i];
+    return s ? stanovisteKratko(s) : '—';
+  }
+
+  async function nacitaj() {
+    INFO = INFO || await api('/api/info');
+    if (INFO.error) { el('suhrn').textContent = INFO.error; return; }
+    STAV = await api('/api/stav');
+    if (STAV.error) { el('suhrn').textContent = STAV.error; return; }
+
+    el('suhrn').innerHTML = `Dokončených <strong>${STAV.hotovo}</strong> zo <strong>${STAV.spolu}</strong> detí. `
+      + `Databáza: <strong>${esc(STAV.rezim_db)}</strong>.`;
+
+    el('obsadenost').innerHTML = '<thead><tr><th>Stanovište</th>'
+      + STAV.stanovistia.map((s) => `<th class="c">${esc(s.letter)}</th>`).join('') + '</tr></thead>'
+      + '<tbody><tr><td>detí práve tu</td>'
+      + STAV.na_stanovisti.map((n) => `<td class="c">${n}</td>`).join('') + '</tr>'
+      + '<tr><td class="mala">miesto</td>'
+      + STAV.stanovistia.map((s) => `<td class="c mala">${esc(s.miesto)}</td>`).join('') + '</tr></tbody>';
+
+    if (!el('filter-skupina').dataset.hotovo) {
+      el('filter-skupina').innerHTML = '<option value="">všetky skupinky</option>'
+        + Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">skupinka ${i + 1}</option>`).join('');
+      el('filter-skupina').dataset.hotovo = '1';
+    }
+    vykresli();
+    vykresliLog();
+  }
+
+  function vykresli() {
+    const hladane = el('hladaj').value.trim().toLowerCase();
+    const skupina = el('filter-skupina').value;
+    const stav = el('filter-stav').value;
+
+    const deti = STAV.deti.filter((d) => {
+      if (skupina && String(d.skupina) !== skupina) return false;
+      if (stav === 'hotovo' && !d.hotovo) return false;
+      if (stav === 'start' && d.postup !== 0) return false;
+      if (stav === 'beh' && (d.postup === 0 || d.hotovo)) return false;
+      if (!hladane) return true;
+      return `${d.meno} ${d.priezvisko} ${d.naramok}`.toLowerCase().includes(hladane);
+    });
+
+    el('deti').innerHTML = deti.map((d) => {
+      const znacka = d.hotovo
+        ? '<span class="znacka fialova">hotovo</span>'
+        : d.postup === 0
+          ? '<span class="znacka seda">0 / 10</span>'
+          : `<span class="znacka zelena">${d.postup} / 10</span>`;
+      return `<tr>
+        <td class="c"><strong>${d.naramok}</strong></td>
+        <td>${esc(d.meno)} ${esc(d.priezvisko)}<div class="mala">${esc(d.rocnik || '')}</div></td>
+        <td class="c">${d.skupina}</td>
+        <td class="c">${znacka}</td>
+        <td>${d.hotovo ? '<span class="mala">vo svojej štvrti</span>' : esc(popis(d.teraz_na))}</td>
+        <td class="c netlacit">
+          <input type="number" min="0" max="10" value="${d.postup}" id="ov-${d.id}">
+          <button onclick="override('${d.id}')">Ulož</button>
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="6" class="mala">Nič nesedí s filtrom.</td></tr>';
+  }
+
+  async function override(id) {
+    const hodnota = parseInt(el('ov-' + id).value, 10);
+    const r = await api('/api/override', 'POST', { id, postup: hodnota });
+    if (r.error) { alert(r.error); return; }
+    await nacitaj();
+  }
+
+  async function vykresliLog() {
+    const r = await api('/api/log');
+    const zoznam = (r.log || []);
+    el('log').innerHTML = '<thead><tr><th>Čas</th><th>Dieťa</th><th>Stanovište</th><th>Výsledok</th></tr></thead><tbody>'
+      + (zoznam.length ? zoznam.map((z) => {
+        const farba = z.vysledok === 'zle_stanoviste' ? 'jantar' : z.vysledok === 'override' ? 'seda' : 'zelena';
+        return `<tr><td class="mala">${esc(new Date(z.ts).toLocaleTimeString('sk-SK'))}</td>`
+          + `<td>${z.naramok} · ${esc(z.meno)}</td>`
+          + `<td>${z.stanoviste == null ? '—' : esc(popis(z.stanoviste))}</td>`
+          + `<td><span class="znacka ${farba}">${esc(z.vysledok)}</span> <span class="mala">kolo ${z.kolo}</span></td></tr>`;
+      }).join('') : '<tr><td colspan="4" class="mala">Zatiaľ nič.</td></tr>') + '</tbody>';
+  }
+
+  async function reset() {
+    if (!confirm('Naozaj vynulovať postup VŠETKÝCH detí?')) return;
+    const r = await api('/api/reset', 'POST', { potvrdenie: 'ZMAZAT' });
+    if (r.error) { alert(r.error); return; }
+    await nacitaj();
+  }
+
+  el('hladaj').oninput = () => vykresli();
+  el('filter-skupina').onchange = () => vykresli();
+  el('filter-stav').onchange = () => vykresli();
+  nacitaj();
+  setInterval(nacitaj, 20000);
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Náramky — LPT2</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Štítky na náramky. Rozmery sú zámerne vo fyzických jednotkách (cm),
+       nie v pixeloch — inak by výsledok závisel od rozlíšenia obrazovky
+       a po vytlačení by nesedel.
+
+       QR kód sa kreslí ako SVG (vektor), takže sa pri tlači neprevzorkuje
+       a moduly ostanú ostré pri akomkoľvek rozlíšení tlačiarne. */
+    :root { --sirka: 1.8cm; }
+
+    .harok { display: flex; flex-wrap: wrap; gap: 3mm; align-items: flex-start; }
+
+    .stitok {
+      padding: 1.2mm;
+      border: 0.2mm solid #000;
+      background: #fff;
+      text-align: center;
+      break-inside: avoid;
+    }
+    /* Čo presne má merať zadaná šírka — celý štítok, alebo samotný QR kód. */
+    .harok.merat-stitok .stitok { width: var(--sirka); box-sizing: border-box; }
+    .harok.merat-qr .stitok { width: var(--sirka); box-sizing: content-box; }
+
+    .stitok svg { display: block; width: 100%; height: auto; }
+    .stitok .cislo { margin-top: 0.7mm; font-size: 8pt; font-weight: 900; line-height: 1.1; }
+    .stitok .meno { font-size: 5pt; line-height: 1.15; color: #222; overflow-wrap: anywhere; }
+
+    @page { size: A4; margin: 8mm; }
+    @media print { body { background: #fff; margin: 0; padding: 0; } .harok { gap: 2mm; } }
+  </style>
+</head>
+<body>
+<div class="wrap netlacit">
+  <nav class="hore">
+    <a href="index.html">Domov</a>
+    <a href="scan.html">Skener</a>
+    <a href="rozpis.html">Rozpis</a>
+    <a href="admin.html">Prehľad</a>
+    <a href="qr.html" class="aktivny">Náramky</a>
+  </nav>
+
+  <h1>Náramky s QR kódmi</h1>
+  <p class="lead">Na štítku je veľké číslo náramku a pod ním meno dieťaťa, ktorému patrí —
+    aby sa pri registrácii nedal dať cudzí náramok. Číslo určuje trasu, takže na tom záleží.</p>
+
+  <div class="karta riadok">
+    <label>Šírka (cm) <input id="sirka" type="number" value="1.8" min="0.8" max="6" step="0.1"></label>
+    <label>Rozmer platí pre
+      <select id="co-merat">
+        <option value="stitok" selected>celý štítok (vrátane rámika)</option>
+        <option value="qr">samotný QR kód</option>
+      </select>
+    </label>
+    <button class="plne" onclick="window.print()">🖨 Tlačiť / uložiť ako PDF</button>
+  </div>
+  <p class="mala" id="prepocet"></p>
+  <p class="mala">⚠️ V tlačovom dialógu nastav <strong>mierku na 100 %</strong> (nie „prispôsobiť stránke"),
+    inak rozmer nebude sedieť. Prvý hárok si over pravítkom.</p>
+</div>
+
+<div id="stitky" class="harok merat-stitok"></div>
+
+<script src="vendor/qrcode.min.js"></script>
+<script src="common.js"></script>
+<script>
+  // Tichá zóna (biely okraj) v moduloch. Norma odporúča 4; na 1,8 cm štítku
+  // by to kód zbytočne zmenšilo, preto 2 — zvyšok tvorí biele odsadenie štítku.
+  const TICHA_ZONA = 2;
+
+  // Knižnica vie kresliť len canvas, ale jej model (ktoré moduly sú tmavé) je
+  // prístupný — z neho poskladáme vektor. Susedné tmavé moduly v riadku sa
+  // spájajú do jedného obdĺžnika, aby SVG nemalo zbytočne veľa prvkov.
+  function qrSvg(text) {
+    const kos = document.createElement('div');
+    const qr = new QRCode(kos, { text, width: 64, height: 64, correctLevel: QRCode.CorrectLevel.M });
+    const model = qr._oQRCode;
+    const n = model.getModuleCount();
+    const celkom = n + TICHA_ZONA * 2;
+    let d = '';
+    for (let r = 0; r < n; r++) {
+      let c = 0;
+      while (c < n) {
+        if (!model.isDark(r, c)) { c++; continue; }
+        const od = c;
+        while (c < n && model.isDark(r, c)) c++;
+        const sirka = c - od;
+        d += `M${od + TICHA_ZONA} ${r + TICHA_ZONA}h${sirka}v1h-${sirka}z`;
+      }
+    }
+    return {
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${celkom} ${celkom}" shape-rendering="crispEdges">`
+        + `<rect width="${celkom}" height="${celkom}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`,
+      moduly: n,
+    };
+  }
+
+  let pocetModulov = 21;
+
+  function prepocitaj() {
+    const cm = parseFloat(el('sirka').value);
+    const preStitok = el('co-merat').value === 'stitok';
+    if (!(cm > 0)) return;
+    document.documentElement.style.setProperty('--sirka', cm + 'cm');
+    el('stitky').className = 'harok ' + (preStitok ? 'merat-stitok' : 'merat-qr');
+
+    const okraje = 2 * (1.2 + 0.2); // odsadenie + rámik na každej strane, v mm
+    const qrMm = preStitok ? cm * 10 - okraje : cm * 10;
+    const modulMm = qrMm / (pocetModulov + TICHA_ZONA * 2);
+    el('prepocet').innerHTML =
+      `Vytlačí sa: štítok <strong>${(preStitok ? cm * 10 : cm * 10 + okraje).toFixed(1)} mm</strong> široký, `
+      + `QR kód <strong>${qrMm.toFixed(1)} mm</strong>, jeden modul ${modulMm.toFixed(2)} mm.`
+      + (modulMm < 0.4
+        ? ' <strong style="color:#c0392b">⚠️ Pod 0,4 mm sa kód číta zle — zväčši šírku.</strong>'
+        : ' Na spoľahlivé skenovanie stačí ~0,4 mm, takže je to v poriadku.');
+  }
+
+  el('sirka').addEventListener('input', prepocitaj);
+  el('co-merat').addEventListener('change', prepocitaj);
+
+  (async () => {
+    const stav = await api('/api/stav');
+    if (stav.error) { el('stitky').textContent = stav.error; return; }
+    const deti = [...stav.deti].sort((a, b) => a.naramok - b.naramok);
+    el('stitky').innerHTML = deti.map((d) => {
+      const { svg, moduly } = qrSvg(d.id);
+      pocetModulov = Math.max(pocetModulov, moduly);
+      return `<div class="stitok">${svg}<div class="cislo">${d.naramok}</div>`
+        + `<div class="meno">${esc(d.meno)} ${esc(d.priezvisko)}</div></div>`;
+    }).join('');
+    prepocitaj();
+  })();
+</script>
+</body>
+</html>

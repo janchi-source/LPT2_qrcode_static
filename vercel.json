@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "public",
+  "buildCommand": null,
+  "installCommand": null,
+  "framework": null,
+  "functions": { "api/*.js": { "maxDuration": 10 } },
+  "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index?cesta=$1" }],
+  "headers": [
+    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+  ]
+}

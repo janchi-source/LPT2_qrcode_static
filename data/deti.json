@@ -1,0 +1,1052 @@
+{
+ "deti": [
+  {
+   "id": "D001",
+   "naramok": 1,
+   "meno": "Hana",
+   "priezvisko": "Dobáková",
+   "rocnik": "5. ročník",
+   "skupina": 3,
+   "trieda": 4
+  },
+  {
+   "id": "D002",
+   "naramok": 2,
+   "meno": "Adam",
+   "priezvisko": "Gaštan",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 3,
+   "trieda": 4
+  },
+  {
+   "id": "D003",
+   "naramok": 3,
+   "meno": "Samuel",
+   "priezvisko": "Hudec",
+   "rocnik": "5. ročník",
+   "skupina": 7,
+   "trieda": 2
+  },
+  {
+   "id": "D004",
+   "naramok": 4,
+   "meno": "Natália",
+   "priezvisko": "Režňáková",
+   "rocnik": "2. ročník",
+   "skupina": 7,
+   "trieda": 2
+  },
+  {
+   "id": "D005",
+   "naramok": 5,
+   "meno": "Hana",
+   "priezvisko": "Jankeje",
+   "rocnik": "5. ročník",
+   "skupina": 5,
+   "trieda": 3
+  },
+  {
+   "id": "D006",
+   "naramok": 6,
+   "meno": "Šimon",
+   "priezvisko": "Smolen",
+   "rocnik": "3. ročník",
+   "skupina": 7,
+   "trieda": 2
+  },
+  {
+   "id": "D007",
+   "naramok": 7,
+   "meno": "Šimon",
+   "priezvisko": "Rim",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 3,
+   "trieda": 4
+  },
+  {
+   "id": "D008",
+   "naramok": 8,
+   "meno": "Nina",
+   "priezvisko": "Kósová",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 9,
+   "trieda": 1
+  },
+  {
+   "id": "D009",
+   "naramok": 9,
+   "meno": "Nicol",
+   "priezvisko": "Fusekova",
+   "rocnik": "8. ročník (tercia)",
+   "skupina": 9,
+   "trieda": 1
+  },
+  {
+   "id": "D010",
+   "naramok": 10,
+   "meno": "Viliam",
+   "priezvisko": "Dobák",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 1,
+   "trieda": 0
+  },
+  {
+   "id": "D011",
+   "naramok": 11,
+   "meno": "Šimon",
+   "priezvisko": "Hurbanič",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 5,
+   "trieda": 3
+  },
+  {
+   "id": "D012",
+   "naramok": 12,
+   "meno": "Michaela",
+   "priezvisko": "Kósová",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 6,
+   "trieda": 2
+  },
+  {
+   "id": "D013",
+   "naramok": 13,
+   "meno": "Timotej",
+   "priezvisko": "Maco",
+   "rocnik": "4. ročník",
+   "skupina": 8,
+   "trieda": 1
+  },
+  {
+   "id": "D014",
+   "naramok": 14,
+   "meno": "Tomáš",
+   "priezvisko": "Šabo",
+   "rocnik": "2.ročník",
+   "skupina": 6,
+   "trieda": 2
+  },
+  {
+   "id": "D015",
+   "naramok": 15,
+   "meno": "Monika",
+   "priezvisko": "Bou Ezzeddine",
+   "rocnik": "2. ročník",
+   "skupina": 4,
+   "trieda": 3
+  },
+  {
+   "id": "D016",
+   "naramok": 16,
+   "meno": "Hana",
+   "priezvisko": "Uváčková",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 2,
+   "trieda": 4
+  },
+  {
+   "id": "D017",
+   "naramok": 17,
+   "meno": "Dominika",
+   "priezvisko": "Chovanová",
+   "rocnik": "4. ročník",
+   "skupina": 2,
+   "trieda": 4
+  },
+  {
+   "id": "D018",
+   "naramok": 18,
+   "meno": "Miriam",
+   "priezvisko": "Dobáková",
+   "rocnik": "2. ročník",
+   "skupina": 8,
+   "trieda": 1
+  },
+  {
+   "id": "D019",
+   "naramok": 19,
+   "meno": "Jana",
+   "priezvisko": "Argalášová",
+   "rocnik": "8. ročník (tercia)",
+   "skupina": 4,
+   "trieda": 3
+  },
+  {
+   "id": "D020",
+   "naramok": 20,
+   "meno": "Naďa",
+   "priezvisko": "Zrubcová",
+   "rocnik": "3. ročník",
+   "skupina": 10,
+   "trieda": 0
+  },
+  {
+   "id": "D021",
+   "naramok": 21,
+   "meno": "Damian",
+   "priezvisko": "Bros",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 2,
+   "trieda": 4
+  },
+  {
+   "id": "D022",
+   "naramok": 22,
+   "meno": "Šimon",
+   "priezvisko": "Dobák",
+   "rocnik": "4. ročník",
+   "skupina": 6,
+   "trieda": 2
+  },
+  {
+   "id": "D023",
+   "naramok": 23,
+   "meno": "Nina",
+   "priezvisko": "Mackovičová",
+   "rocnik": "4. ročník",
+   "skupina": 1,
+   "trieda": 4
+  },
+  {
+   "id": "D024",
+   "naramok": 24,
+   "meno": "Tamara",
+   "priezvisko": "Földešová",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 3,
+   "trieda": 3
+  },
+  {
+   "id": "D025",
+   "naramok": 25,
+   "meno": "Michal",
+   "priezvisko": "Chvála",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 7,
+   "trieda": 1
+  },
+  {
+   "id": "D026",
+   "naramok": 26,
+   "meno": "Tobias",
+   "priezvisko": "Moravek",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 9,
+   "trieda": 0
+  },
+  {
+   "id": "D027",
+   "naramok": 27,
+   "meno": "Dávid",
+   "priezvisko": "Hudec",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 5,
+   "trieda": 2
+  },
+  {
+   "id": "D028",
+   "naramok": 28,
+   "meno": "Jozef",
+   "priezvisko": "Rim",
+   "rocnik": "5. ročník",
+   "skupina": 1,
+   "trieda": 4
+  },
+  {
+   "id": "D029",
+   "naramok": 29,
+   "meno": "Vivien",
+   "priezvisko": "Rajnincová",
+   "rocnik": "4. ročník",
+   "skupina": 7,
+   "trieda": 1
+  },
+  {
+   "id": "D030",
+   "naramok": 30,
+   "meno": "Johanka",
+   "priezvisko": "Hrnčířová",
+   "rocnik": "4. ročník",
+   "skupina": 3,
+   "trieda": 3
+  },
+  {
+   "id": "D031",
+   "naramok": 31,
+   "meno": "Eliška",
+   "priezvisko": "Šoltésová",
+   "rocnik": "3. ročník",
+   "skupina": 5,
+   "trieda": 2
+  },
+  {
+   "id": "D032",
+   "naramok": 32,
+   "meno": "Andrej",
+   "priezvisko": "Maco",
+   "rocnik": "2.ročník",
+   "skupina": 1,
+   "trieda": 4
+  },
+  {
+   "id": "D033",
+   "naramok": 33,
+   "meno": "Petra",
+   "priezvisko": "Martinkovičová",
+   "rocnik": "5. ročník",
+   "skupina": 10,
+   "trieda": 4
+  },
+  {
+   "id": "D034",
+   "naramok": 34,
+   "meno": "Alexander",
+   "priezvisko": "Kozák",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 2,
+   "trieda": 3
+  },
+  {
+   "id": "D035",
+   "naramok": 35,
+   "meno": "Gloria",
+   "priezvisko": "Podskocova",
+   "rocnik": "4. ročník",
+   "skupina": 10,
+   "trieda": 4
+  },
+  {
+   "id": "D036",
+   "naramok": 36,
+   "meno": "Hana",
+   "priezvisko": "Priklerová",
+   "rocnik": "5. ročník",
+   "skupina": 8,
+   "trieda": 0
+  },
+  {
+   "id": "D037",
+   "naramok": 37,
+   "meno": "Daniel",
+   "priezvisko": "Pálinkás",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 4,
+   "trieda": 2
+  },
+  {
+   "id": "D038",
+   "naramok": 38,
+   "meno": "Cecília",
+   "priezvisko": "Hečková",
+   "rocnik": "4. ročník",
+   "skupina": 4,
+   "trieda": 2
+  },
+  {
+   "id": "D039",
+   "naramok": 39,
+   "meno": "Max",
+   "priezvisko": "Zimmermann",
+   "rocnik": "8. ročník (tercia)",
+   "skupina": 10,
+   "trieda": 4
+  },
+  {
+   "id": "D040",
+   "naramok": 40,
+   "meno": "Šimon",
+   "priezvisko": "Tichánsky",
+   "rocnik": "2.ročník",
+   "skupina": 2,
+   "trieda": 3
+  },
+  {
+   "id": "D041",
+   "naramok": 41,
+   "meno": "Nikola",
+   "priezvisko": "Krnčanová",
+   "rocnik": "4. ročník",
+   "skupina": 6,
+   "trieda": 1
+  },
+  {
+   "id": "D042",
+   "naramok": 42,
+   "meno": "Matúš",
+   "priezvisko": "Ďurčík",
+   "rocnik": "5. ročník",
+   "skupina": 6,
+   "trieda": 1
+  },
+  {
+   "id": "D043",
+   "naramok": 43,
+   "meno": "Lucia",
+   "priezvisko": "Uváčková",
+   "rocnik": "2. ročník",
+   "skupina": 9,
+   "trieda": 4
+  },
+  {
+   "id": "D044",
+   "naramok": 44,
+   "meno": "Ján",
+   "priezvisko": "Jankeje",
+   "rocnik": "2.ročník",
+   "skupina": 5,
+   "trieda": 1
+  },
+  {
+   "id": "D045",
+   "naramok": 45,
+   "meno": "Filip",
+   "priezvisko": "Lendel",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 9,
+   "trieda": 4
+  },
+  {
+   "id": "D046",
+   "naramok": 46,
+   "meno": "Michal",
+   "priezvisko": "Olík",
+   "rocnik": "8. ročník (tercia)",
+   "skupina": 7,
+   "trieda": 0
+  },
+  {
+   "id": "D047",
+   "naramok": 47,
+   "meno": "Ema",
+   "priezvisko": "Poláková",
+   "rocnik": "3. ročník",
+   "skupina": 1,
+   "trieda": 3
+  },
+  {
+   "id": "D048",
+   "naramok": 48,
+   "meno": "Daniel",
+   "priezvisko": "Lengyel",
+   "rocnik": "5. ročník",
+   "skupina": 3,
+   "trieda": 2
+  },
+  {
+   "id": "D049",
+   "naramok": 49,
+   "meno": "Dominik",
+   "priezvisko": "Režňák",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 3,
+   "trieda": 2
+  },
+  {
+   "id": "D050",
+   "naramok": 50,
+   "meno": "Adam",
+   "priezvisko": "Jankeje",
+   "rocnik": "4. ročník",
+   "skupina": 1,
+   "trieda": 3
+  },
+  {
+   "id": "D051",
+   "naramok": 51,
+   "meno": "Gréta",
+   "priezvisko": "Földešová",
+   "rocnik": "4. ročník",
+   "skupina": 5,
+   "trieda": 1
+  },
+  {
+   "id": "D052",
+   "naramok": 52,
+   "meno": "Barbora",
+   "priezvisko": "Tomová",
+   "rocnik": "4. ročník",
+   "skupina": 9,
+   "trieda": 4
+  },
+  {
+   "id": "D053",
+   "naramok": 53,
+   "meno": "Tatianka",
+   "priezvisko": "Macová",
+   "rocnik": "4. ročník",
+   "skupina": 3,
+   "trieda": 2
+  },
+  {
+   "id": "D054",
+   "naramok": 54,
+   "meno": "Mária",
+   "priezvisko": "Šoltésová",
+   "rocnik": "5. ročník",
+   "skupina": 8,
+   "trieda": 4
+  },
+  {
+   "id": "D055",
+   "naramok": 55,
+   "meno": "Tomáš",
+   "priezvisko": "Remenár",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 2,
+   "trieda": 2
+  },
+  {
+   "id": "D056",
+   "naramok": 56,
+   "meno": "Hermína",
+   "priezvisko": "Hečková",
+   "rocnik": "5. ročník",
+   "skupina": 2,
+   "trieda": 2
+  },
+  {
+   "id": "D057",
+   "naramok": 57,
+   "meno": "Timotej",
+   "priezvisko": "Firický",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 6,
+   "trieda": 0
+  },
+  {
+   "id": "D058",
+   "naramok": 58,
+   "meno": "Alžbeta",
+   "priezvisko": "Hurbaničová",
+   "rocnik": "4. ročník",
+   "skupina": 4,
+   "trieda": 1
+  },
+  {
+   "id": "D059",
+   "naramok": 59,
+   "meno": "Tomáš",
+   "priezvisko": "Uličný",
+   "rocnik": "5. ročník",
+   "skupina": 10,
+   "trieda": 3
+  },
+  {
+   "id": "D060",
+   "naramok": 60,
+   "meno": "Liliana",
+   "priezvisko": "Strnová",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 8,
+   "trieda": 4
+  },
+  {
+   "id": "D061",
+   "naramok": 61,
+   "meno": "Lukáš",
+   "priezvisko": "Sádovský",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 8,
+   "trieda": 4
+  },
+  {
+   "id": "D062",
+   "naramok": 62,
+   "meno": "Sofia Anna",
+   "priezvisko": "Turočeková",
+   "rocnik": "4. ročník",
+   "skupina": 10,
+   "trieda": 3
+  },
+  {
+   "id": "D063",
+   "naramok": 63,
+   "meno": "Dominik",
+   "priezvisko": "Renčko",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 4,
+   "trieda": 1
+  },
+  {
+   "id": "D064",
+   "naramok": 64,
+   "meno": "Hanka",
+   "priezvisko": "Husarova",
+   "rocnik": "2. ročník",
+   "skupina": 2,
+   "trieda": 2
+  },
+  {
+   "id": "D065",
+   "naramok": 65,
+   "meno": "Jakub",
+   "priezvisko": "Likavčan",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 9,
+   "trieda": 3
+  },
+  {
+   "id": "D066",
+   "naramok": 66,
+   "meno": "Karolina",
+   "priezvisko": "Olveczká",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 7,
+   "trieda": 4
+  },
+  {
+   "id": "D067",
+   "naramok": 67,
+   "meno": "Lýdia",
+   "priezvisko": "Pálinkásová",
+   "rocnik": "3. ročník",
+   "skupina": 7,
+   "trieda": 4
+  },
+  {
+   "id": "D068",
+   "naramok": 68,
+   "meno": "Hana",
+   "priezvisko": "Jankeje",
+   "rocnik": "5. ročník",
+   "skupina": 1,
+   "trieda": 2
+  },
+  {
+   "id": "D069",
+   "naramok": 69,
+   "meno": "Adam",
+   "priezvisko": "Bugri",
+   "rocnik": "2.ročník",
+   "skupina": 3,
+   "trieda": 1
+  },
+  {
+   "id": "D070",
+   "naramok": 70,
+   "meno": "Katarina",
+   "priezvisko": "Filipová",
+   "rocnik": "4. ročník",
+   "skupina": 7,
+   "trieda": 4
+  },
+  {
+   "id": "D071",
+   "naramok": 71,
+   "meno": "Laura",
+   "priezvisko": "Trgová",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 1,
+   "trieda": 2
+  },
+  {
+   "id": "D072",
+   "naramok": 72,
+   "meno": "Jakub",
+   "priezvisko": "Brček",
+   "rocnik": "2.ročník",
+   "skupina": 9,
+   "trieda": 3
+  },
+  {
+   "id": "D073",
+   "naramok": 73,
+   "meno": "Filip",
+   "priezvisko": "Petrovits",
+   "rocnik": "2. ročník",
+   "skupina": 5,
+   "trieda": 0
+  },
+  {
+   "id": "D074",
+   "naramok": 74,
+   "meno": "Greta",
+   "priezvisko": "Goliasova",
+   "rocnik": "3. ročník",
+   "skupina": 3,
+   "trieda": 1
+  },
+  {
+   "id": "D075",
+   "naramok": 75,
+   "meno": "Oliver",
+   "priezvisko": "ík",
+   "rocnik": "3. ročník",
+   "skupina": 10,
+   "trieda": 2
+  },
+  {
+   "id": "D076",
+   "naramok": 76,
+   "meno": "Ivan",
+   "priezvisko": "Serhiychuk",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 6,
+   "trieda": 4
+  },
+  {
+   "id": "D077",
+   "naramok": 77,
+   "meno": "Vincent",
+   "priezvisko": "Vanovčan",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 8,
+   "trieda": 3
+  },
+  {
+   "id": "D078",
+   "naramok": 78,
+   "meno": "Viktória",
+   "priezvisko": "Režňáková",
+   "rocnik": "5. ročník",
+   "skupina": 6,
+   "trieda": 4
+  },
+  {
+   "id": "D079",
+   "naramok": 79,
+   "meno": "Dominika",
+   "priezvisko": "Kuzmická",
+   "rocnik": "5. ročník",
+   "skupina": 2,
+   "trieda": 1
+  },
+  {
+   "id": "D080",
+   "naramok": 80,
+   "meno": "Isabelle",
+   "priezvisko": "Mruk",
+   "rocnik": "4. ročník",
+   "skupina": 4,
+   "trieda": 0
+  },
+  {
+   "id": "D081",
+   "naramok": 81,
+   "meno": "Pavol",
+   "priezvisko": "Jakubec",
+   "rocnik": "5. ročník",
+   "skupina": 2,
+   "trieda": 1
+  },
+  {
+   "id": "D082",
+   "naramok": 82,
+   "meno": "Lukáš",
+   "priezvisko": "Noskovič",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 10,
+   "trieda": 2
+  },
+  {
+   "id": "D083",
+   "naramok": 83,
+   "meno": "Lea",
+   "priezvisko": "Ťichánska",
+   "rocnik": "4. ročník",
+   "skupina": 8,
+   "trieda": 3
+  },
+  {
+   "id": "D084",
+   "naramok": 84,
+   "meno": "Veronika",
+   "priezvisko": "Hečková",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 10,
+   "trieda": 2
+  },
+  {
+   "id": "D085",
+   "naramok": 85,
+   "meno": "Kristína",
+   "priezvisko": "Tomčakovská",
+   "rocnik": "3. ročník",
+   "skupina": 6,
+   "trieda": 4
+  },
+  {
+   "id": "D086",
+   "naramok": 86,
+   "meno": "Alexandra",
+   "priezvisko": "Mihalenková",
+   "rocnik": "3. ročník",
+   "skupina": 1,
+   "trieda": 1
+  },
+  {
+   "id": "D087",
+   "naramok": 87,
+   "meno": "Tomáš",
+   "priezvisko": "Husár",
+   "rocnik": "5. ročník",
+   "skupina": 7,
+   "trieda": 3
+  },
+  {
+   "id": "D088",
+   "naramok": 88,
+   "meno": "Vilma",
+   "priezvisko": "Timková",
+   "rocnik": "4. ročník",
+   "skupina": 5,
+   "trieda": 4
+  },
+  {
+   "id": "D089",
+   "naramok": 89,
+   "meno": "Milena",
+   "priezvisko": "Patoprstá",
+   "rocnik": "5. ročník",
+   "skupina": 9,
+   "trieda": 2
+  },
+  {
+   "id": "D090",
+   "naramok": 90,
+   "meno": "Diana",
+   "priezvisko": "Kurucová",
+   "rocnik": "3. ročník",
+   "skupina": 9,
+   "trieda": 2
+  },
+  {
+   "id": "D091",
+   "naramok": 91,
+   "meno": "Adam",
+   "priezvisko": "Baláž",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 1,
+   "trieda": 1
+  },
+  {
+   "id": "D092",
+   "naramok": 92,
+   "meno": "Terézia",
+   "priezvisko": "Chovanová",
+   "rocnik": "7. ročník (sekunda)",
+   "skupina": 5,
+   "trieda": 4
+  },
+  {
+   "id": "D093",
+   "naramok": 93,
+   "meno": "Kristínka",
+   "priezvisko": "Renčková",
+   "rocnik": "3. ročník",
+   "skupina": 3,
+   "trieda": 0
+  },
+  {
+   "id": "D094",
+   "naramok": 94,
+   "meno": "Hana",
+   "priezvisko": "Brčeková",
+   "rocnik": "4. ročník",
+   "skupina": 7,
+   "trieda": 3
+  },
+  {
+   "id": "D095",
+   "naramok": 95,
+   "meno": "Ela Mária",
+   "priezvisko": "Turočeková",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 5,
+   "trieda": 4
+  },
+  {
+   "id": "D096",
+   "naramok": 96,
+   "meno": "Ondrej",
+   "priezvisko": "Kullač",
+   "rocnik": "4. ročník",
+   "skupina": 9,
+   "trieda": 2
+  },
+  {
+   "id": "D097",
+   "naramok": 97,
+   "meno": "Tereza",
+   "priezvisko": "Vanyskova",
+   "rocnik": "2. ročník",
+   "skupina": 6,
+   "trieda": 3
+  },
+  {
+   "id": "D098",
+   "naramok": 98,
+   "meno": "Tamarka",
+   "priezvisko": "Kubov",
+   "rocnik": "3. ročník",
+   "skupina": 2,
+   "trieda": 0
+  },
+  {
+   "id": "D099",
+   "naramok": 99,
+   "meno": "Erik",
+   "priezvisko": "Bolha",
+   "rocnik": "6. ročník (prima)",
+   "skupina": 10,
+   "trieda": 1
+  },
+  {
+   "id": "D100",
+   "naramok": 100,
+   "meno": "Paulína",
+   "priezvisko": "Markovičová",
+   "rocnik": "2. ročník",
+   "skupina": 10,
+   "trieda": 1
+  },
+  {
+   "id": "D101",
+   "naramok": 101,
+   "meno": "Veronika",
+   "priezvisko": "Jungová",
+   "rocnik": "8. ročník (tercia)",
+   "skupina": 6,
+   "trieda": 3
+  },
+  {
+   "id": "D102",
+   "naramok": 102,
+   "meno": "Lukáš",
+   "priezvisko": "Gutten",
+   "rocnik": "5. ročník",
+   "skupina": 4,
+   "trieda": 4
+  },
+  {
+   "id": "D103",
+   "naramok": 103,
+   "meno": "Sofi",
+   "priezvisko": "Tusinovschi",
+   "rocnik": "5. ročník",
+   "skupina": 4,
+   "trieda": 4
+  },
+  {
+   "id": "D104",
+   "naramok": 104,
+   "meno": "Andrej",
+   "priezvisko": "Petrovits",
+   "rocnik": "3. ročník",
+   "skupina": 8,
+   "trieda": 2
+  },
+  {
+   "id": "D105",
+   "naramok": 105,
+   "meno": "Klára",
+   "priezvisko": "Kellová",
+   "rocnik": "4. ročník",
+   "skupina": 8,
+   "trieda": 2
+  },
+  {
+   "id": "D106",
+   "naramok": 106,
+   "meno": "Šimon",
+   "priezvisko": "Ík",
+   "rocnik": null,
+   "skupina": 4,
+   "trieda": 4
+  }
+ ],
+ "animatori": {
+  "1": [
+   "Zoja Gajdošová",
+   "Naty Noskovičová"
+  ],
+  "2": [
+   "Táňa Martiniaková",
+   "Danka Balogová"
+  ],
+  "3": [
+   "Filip Hurbanič",
+   "Lívia Šturcová"
+  ],
+  "4": [
+   "Gabika Lacková",
+   "Jakub Copák"
+  ],
+  "5": [
+   "Ján Dobák",
+   "Saška Zrubcová"
+  ],
+  "6": [
+   "Zuzana Noskovičová",
+   "Roman Goliáš"
+  ],
+  "7": [
+   "Juraj Hanák",
+   "Ester Langová"
+  ],
+  "8": [
+   "Zuzka Jakubcová",
+   "Martin Potocký"
+  ],
+  "9": [
+   "Matej Rea",
+   "Biana Pavlovičová"
+  ],
+  "10": [
+   "Jakub Uváček",
+   "Elisa Lengyelová"
+  ]
+ },
+ "startove_bloky": [
+  {
+   "stanoviste": 0,
+   "od": 1,
+   "do": 11
+  },
+  {
+   "stanoviste": 1,
+   "od": 12,
+   "do": 22
+  },
+  {
+   "stanoviste": 2,
+   "od": 23,
+   "do": 32
+  },
+  {
+   "stanoviste": 3,
+   "od": 33,
+   "do": 42
+  },
+  {
+   "stanoviste": 4,
+   "od": 43,
+   "do": 53
+  },
+  {
+   "stanoviste": 5,
+   "od": 54,
+   "do": 64
+  },
+  {
+   "stanoviste": 6,
+   "od": 65,
+   "do": 74
+  },
+  {
+   "stanoviste": 7,
+   "od": 75,
+   "do": 85
+  },
+  {
+   "stanoviste": 8,
+   "od": 86,
+   "do": 96
+  },
+  {
+   "stanoviste": 9,
+   "od": 97,
+   "do": 106
+  }
+ ]
+}

@@ -1,0 +1,4 @@
+test/
+data/stav.json
+node_modules/
+.DS_Store
