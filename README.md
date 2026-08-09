@@ -142,11 +142,29 @@ jedno navyše zo skupiniek s 11 deťmi.
 Skener je zámerne jediná pekná stránka — ostatné sú striedme a hlavne dobre
 tlačiteľné.
 
-### Override
+### Override a heslo
 
 V `/admin.html` sa dá každému dieťaťu nastaviť postup (0–10) natvrdo. Hodí sa,
 keď sa vynechá sken, keď dieťa príde neskôr, alebo keď sa niekde stane zmätok.
 Zmena sa zapíše do logu. Trasu override **nemení** — tá je pevná.
+
+Zásahy, ktoré menia stav mimo pravidiel hry, sú za **heslom** — `sex`:
+
+| akcia | heslo |
+|---|---|
+| skenovanie na stanovišti | **nie** — telefón má v ruke hociktorý animátor a zdržiavať ho prihlasovaním by hru brzdilo |
+| override postupu | áno |
+| simulácia (`/api/simulacia`) | áno |
+| vynulovanie hry | áno + potvrdenie `ZMAZAT` |
+
+Heslo overuje **server** (`lib/handler.js`), nie stránka — nedá sa obísť tým, že
+si niekto pozrie zdroják alebo zavolá API priamo. Dá sa zmeniť premennou
+prostredia `LPT2S_HESLO` bez zásahu do kódu.
+
+V prehľade sa odomyká raz za kartu prehliadača (`sessionStorage`), takže po jej
+zavretí je zamknuté späť — zabudnutý telefón neostane otvorený. Nie je to
+ochrana pred útočníkom, je to poistka proti omylu a proti zvedavému dieťaťu
+s telefónom.
 
 ---
 

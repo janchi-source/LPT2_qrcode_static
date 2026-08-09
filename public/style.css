@@ -86,7 +86,14 @@ button, .btn {
 }
 button.plne { background: var(--fialova); color: #fff; }
 button.nebezpecne { border-color: var(--cervena); color: var(--cervena); }
-button:disabled { opacity: 0.45; cursor: default; }
+/* Zamknuté zásahy musia byť vidno na prvý pohľad, nielen nefungovať. */
+button:disabled, input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f1ecf3;
+  border-color: #d8cfdd;
+  color: #8b8b8b;
+}
 
 input, select {
   font-family: inherit;

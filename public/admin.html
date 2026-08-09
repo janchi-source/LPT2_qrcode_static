@@ -19,6 +19,18 @@
   <h1>Prehľad hry</h1>
   <p class="lead" id="suhrn">Načítavam…</p>
 
+  <div class="karta netlacit" id="zamok">
+    <div class="riadok">
+      <strong id="zamok-stav">🔒 Zásahy do hry sú zamknuté</strong>
+      <input id="heslo" type="password" placeholder="heslo" autocomplete="current-password"
+             style="width:150px" onkeydown="if(event.key==='Enter')odomkni()">
+      <button class="plne" id="btn-odomknut" onclick="odomkni()">Odomknúť</button>
+      <button id="btn-zamknut" onclick="zamkni()" style="display:none">Zamknúť</button>
+    </div>
+    <p class="mala" id="zamok-hlaska">Override a vynulovanie potrebujú heslo. Skenovanie na
+      stanovištiach heslo nepotrebuje — to musí ísť bez zdržovania.</p>
+  </div>
+
   <h2>Kde deti práve stoja</h2>
   <div class="karta"><table id="obsadenost"></table></div>
 
@@ -50,8 +62,8 @@
   <h2 class="netlacit">Nebezpečná zóna</h2>
   <div class="karta netlacit">
     <p class="mala">Reset vymaže postup všetkých detí. Trasy sa tým nemenia — tie sú pevné.
-      Hodí sa po skúšobnom behu, pred ostrou hrou.</p>
-    <button class="nebezpecne" onclick="reset()">Vynulovať postup všetkých detí</button>
+      Hodí sa po skúšobnom behu, pred ostrou hrou. Treba naň odomknuté zásahy.</p>
+    <button class="nebezpecne" onclick="reset()" data-zamknutelne>Vynulovať postup všetkých detí</button>
   </div>
 </div>
 
@@ -59,6 +71,57 @@
 <script>
   let INFO = null;
   let STAV = null;
+
+  // --- Zámok ---------------------------------------------------------------
+  // Heslo drží server (lib/handler.js), tu sa len pamätá na kartu prehliadača,
+  // nech ho netreba písať pri každej oprave. sessionStorage zámerne — po zavretí
+  // karty je zamknuté späť, aby zabudnutý telefón neostal odomknutý.
+  const heslo = () => sessionStorage.getItem('lpt2s_heslo') || '';
+  const odomknute = () => !!heslo();
+
+  function vykresliZamok() {
+    el('zamok-stav').textContent = odomknute() ? '🔓 Zásahy do hry sú odomknuté' : '🔒 Zásahy do hry sú zamknuté';
+    el('heslo').style.display = odomknute() ? 'none' : '';
+    el('btn-odomknut').style.display = odomknute() ? 'none' : '';
+    el('btn-zamknut').style.display = odomknute() ? '' : 'none';
+    document.querySelectorAll('[data-zamknutelne]').forEach((x) => { x.disabled = !odomknute(); });
+  }
+
+  async function odomkni() {
+    const zadane = el('heslo').value;
+    if (!zadane) return;
+    // Overí sa na serveri, nie tu — inak by stačilo pozrieť do zdrojáku stránky.
+    // Neškodná skúška: override dieťaťa na jeho súčasnú hodnotu.
+    const prve = STAV && STAV.deti[0];
+    if (!prve) { alert('Počkaj, kým sa načíta zoznam detí.'); return; }
+    const r = await api('/api/override', 'POST', { id: prve.id, postup: prve.postup, heslo: zadane });
+    if (r.error) {
+      el('zamok-hlaska').textContent = r.treba_heslo ? '⛔ Nesprávne heslo.' : r.error;
+      return;
+    }
+    sessionStorage.setItem('lpt2s_heslo', zadane);
+    el('heslo').value = '';
+    el('zamok-hlaska').textContent = 'Odomknuté pre túto kartu prehliadača. Po jej zavretí sa zamkne späť.';
+    vykresliZamok();
+  }
+
+  function zamkni() {
+    sessionStorage.removeItem('lpt2s_heslo');
+    el('zamok-hlaska').textContent = 'Zamknuté.';
+    vykresliZamok();
+  }
+
+  // Keď server heslo odmietne (napr. sa medzitým zmenilo), zabudni ho.
+  function skontrolujOdmietnutie(r) {
+    if (r && r.treba_heslo) {
+      sessionStorage.removeItem('lpt2s_heslo');
+      vykresliZamok();
+      el('zamok-hlaska').textContent = '⛔ Heslo neplatí — zadaj ho znova.';
+      el('zamok').scrollIntoView({ block: 'nearest' });
+      return true;
+    }
+    return false;
+  }
 
   function popis(i) {
     const s = INFO.stanovistia[i];
@@ -117,16 +180,18 @@
         <td class="c">${znacka}</td>
         <td>${d.hotovo ? '<span class="mala">vo svojej štvrti</span>' : esc(popis(d.teraz_na))}</td>
         <td class="c netlacit">
-          <input type="number" min="0" max="10" value="${d.postup}" id="ov-${d.id}">
-          <button onclick="override('${d.id}')">Ulož</button>
+          <input type="number" min="0" max="10" value="${d.postup}" id="ov-${d.id}" data-zamknutelne>
+          <button onclick="override('${d.id}')" data-zamknutelne>Ulož</button>
         </td>
       </tr>`;
     }).join('') || '<tr><td colspan="6" class="mala">Nič nesedí s filtrom.</td></tr>';
+    vykresliZamok(); // tabuľka sa práve prekreslila — polia treba znova zamknúť
   }
 
   async function override(id) {
     const hodnota = parseInt(el('ov-' + id).value, 10);
-    const r = await api('/api/override', 'POST', { id, postup: hodnota });
+    const r = await api('/api/override', 'POST', { id, postup: hodnota, heslo: heslo() });
+    if (skontrolujOdmietnutie(r)) return;
     if (r.error) { alert(r.error); return; }
     await nacitaj();
   }
@@ -146,7 +211,8 @@
 
   async function reset() {
     if (!confirm('Naozaj vynulovať postup VŠETKÝCH detí?')) return;
-    const r = await api('/api/reset', 'POST', { potvrdenie: 'ZMAZAT' });
+    const r = await api('/api/reset', 'POST', { potvrdenie: 'ZMAZAT', heslo: heslo() });
+    if (skontrolujOdmietnutie(r)) return;
     if (r.error) { alert(r.error); return; }
     await nacitaj();
   }
@@ -154,6 +220,7 @@
   el('hladaj').oninput = () => vykresli();
   el('filter-skupina').onchange = () => vykresli();
   el('filter-stav').onchange = () => vykresli();
+  vykresliZamok();
   nacitaj();
   setInterval(nacitaj, 20000);
 </script>

@@ -25,6 +25,7 @@ function volaj(cesta, metoda = 'GET', telo = null) {
 }
 
 const sken = (kod, stanoviste) => volaj('sken', 'POST', { kod, stanoviste });
+const HESLO = 'sex';
 
 async function test(nazov, fn) { await fn(); testov++; console.log('  ✓ ' + nazov); }
 
@@ -71,25 +72,55 @@ async function test(nazov, fn) { await fn(); testov++; console.log('  ✓ ' + na
     assert.strictEqual(stav.deti.find((x) => x.id === d.id).postup, 1);
   });
 
+  await test('override, reset ani simulácia neprejdú bez hesla', async () => {
+    const povodny = (await volaj('stav')).deti.find((x) => x.id === d.id).postup;
+    for (const [cesta, telo] of [
+      ['override', { id: d.id, postup: 9 }],
+      ['override', { id: d.id, postup: 9, heslo: 'zle' }],
+      ['override', { id: d.id, postup: 9, heslo: 'SEX' }],
+      ['override', { id: d.id, postup: 9, heslo: '' }],
+      ['simulacia', { kod: d.id }],
+      ['simulacia', { kod: d.id, heslo: 'zle' }],
+      ['reset', { potvrdenie: 'ZMAZAT' }],
+      ['reset', { potvrdenie: 'ZMAZAT', heslo: 'zle' }],
+    ]) {
+      const r = await volaj(cesta, 'POST', telo);
+      assert.ok(r.error, `${cesta} prešlo bez hesla: ${JSON.stringify(telo)}`);
+      assert.strictEqual(r.treba_heslo, true, cesta);
+    }
+    // ...a naozaj sa nič nezmenilo
+    const stav = await volaj('stav');
+    assert.strictEqual(stav.deti.find((x) => x.id === d.id).postup, povodny);
+    assert.ok(stav.deti.some((x) => x.postup > 0), 'reset bez hesla predsa len prešiel');
+  });
+
+  await test('heslo sa toleruje s medzerami okolo, nie s inou veľkosťou písmen', async () => {
+    const r = await volaj('override', 'POST', { id: d.id, postup: 1, heslo: `  ${HESLO}  ` });
+    assert.ok(r.ok, JSON.stringify(r));
+    const zle = await volaj('override', 'POST', { id: d.id, postup: 1, heslo: HESLO.toUpperCase() });
+    assert.strictEqual(zle.treba_heslo, true);
+  });
+
   await test('override nastaví postup natvrdo (aj dozadu)', async () => {
-    let r = await volaj('override', 'POST', { id: d.id, postup: 5 });
+    let r = await volaj('override', 'POST', { id: d.id, postup: 5, heslo: HESLO });
     assert.strictEqual(r.dieta.postup, 5);
     // sken teraz musí sedieť s 6. stanovišťom trasy, nie s druhým
     const zly = await sken(d.id, t[1]);
     assert.strictEqual(zly.vysledok, 'zle_stanoviste');
     const dobry = await sken(d.id, t[5]);
     assert.ok(dobry.vysledok === 'ok' || dobry.vysledok === 'presun', dobry.hlaska);
-    r = await volaj('override', 'POST', { id: d.id, postup: 0 });
+    r = await volaj('override', 'POST', { id: d.id, postup: 0, heslo: HESLO });
     assert.strictEqual(r.dieta.postup, 0);
   });
 
   await test('override odmietne nezmyselnú hodnotu', async () => {
-    const r = await volaj('override', 'POST', { id: d.id, postup: 11 });
+    const r = await volaj('override', 'POST', { id: d.id, postup: 11, heslo: HESLO });
     assert.ok(r.error);
+    assert.ok(!r.treba_heslo, 'zlá hodnota sa nemá tváriť ako zlé heslo');
   });
 
   await test('jeden QR kód prejde všetkých 10 stanovíšť sám, bez ostatných detí', async () => {
-    const r = await volaj('simulacia', 'POST', { kod: d.id });
+    const r = await volaj('simulacia', 'POST', { kod: d.id, heslo: HESLO });
     assert.strictEqual(r.ok, true);
     assert.strictEqual(r.kroky.length, 10);
     assert.strictEqual(r.dieta.postup, 10);
@@ -101,8 +132,8 @@ async function test(nazov, fn) { await fn(); testov++; console.log('  ✓ ' + na
   });
 
   await test('reset vyžaduje potvrdenie a potom vynuluje všetko', async () => {
-    assert.ok((await volaj('reset', 'POST', {})).error);
-    assert.ok((await volaj('reset', 'POST', { potvrdenie: 'ZMAZAT' })).ok);
+    assert.ok((await volaj('reset', 'POST', { heslo: HESLO })).error);
+    assert.ok((await volaj('reset', 'POST', { potvrdenie: 'ZMAZAT', heslo: HESLO })).ok);
     const stav = await volaj('stav');
     assert.strictEqual(stav.deti.filter((x) => x.postup > 0).length, 0);
   });
