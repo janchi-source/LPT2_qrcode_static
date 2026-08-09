@@ -71,37 +71,97 @@ def trasa(skupina, trieda):
     return [(H + p) % N for p in SABLONY[trieda]]
 
 
+def prezdravie(x):
+    return x.strip() if isinstance(x, str) else ''
+
+
 def nacitaj(cesta):
+    """Prečíta deti z hárku „skupinky pre animátorov".
+
+    Zdrojom pravdy je ZÁMERNE prehľadová tabuľka, nie hárky 1.skupinka…
+    10.skupinka. Tie sa v praxi opravujú menej dôsledne — v auguste 2026 v nich
+    chýbalo jedno dieťa a jedno bolo pod cudzím menom, kým tabuľka bola
+    v poriadku. Hárky sa preto načítajú tiež, ale len na porovnanie: rozdiely
+    sa vypíšu ako upozornenie, nech sa o nich vie.
+
+    Tabuľka má tri stĺpcové bloky (1, 6, 11) a niekoľko pásiem riadkov.
+    Pásmo sa začína riadkom „Animátori:", podľa ktorého sa pozná, o ktorú
+    skupinku ide — dvojica animátorov je kľúč do hárkov po skupinkách.
+    """
     wb = openpyxl.load_workbook(cesta, data_only=True)
 
-    # Ročníky sú len v prehľadovom hárku, kľúčované menom + priezviskom.
-    rocniky = {}
-    ws = wb['skupinky pre animátorov']
-    for row in ws.iter_rows(values_only=True):
-        for base in (1, 6, 11, 16, 21):
-            bunky = (row[base:base + 4] + (None,) * 4)[:4]
-            meno, prie, rocnik = bunky[0], bunky[1], bunky[2]
-            if isinstance(meno, str) and isinstance(prie, str) \
-                    and meno.strip() and meno.strip() != 'Animátori:':
-                if isinstance(rocnik, str) and rocnik.strip():
-                    rocniky[(meno.strip(), prie.strip())] = rocnik.strip()
-
-    skupiny = []
+    # 1) hárky po skupinkách: dvojica animátorov → číslo skupinky + zoznam detí
+    animatori, harky = {}, {}
+    podla_dvojice = {}
     for g in range(1, N + 1):
-        rows = list(wb[f'{g}.skupinka'].iter_rows(values_only=True))
-        hlavicka = rows[1]
-        animatori = [x.strip() for x in (hlavicka[1], hlavicka[2])
-                     if isinstance(x, str) and x.strip()]
-        deti = []
-        for r in rows[2:]:
-            meno, prie = r[1], r[2]
-            if not (isinstance(meno, str) and meno.strip()):
-                continue
-            kluc = (meno.strip(), (prie or '').strip())
-            deti.append({'meno': meno.strip(), 'priezvisko': (prie or '').strip(),
-                         'rocnik': rocniky.get(kluc)})
-        skupiny.append({'cislo': g, 'animatori': animatori, 'deti': deti})
-    return skupiny
+        nazov = f'{g}.skupinka'
+        if nazov not in wb.sheetnames:
+            sys.exit(f'V súbore chýba hárok „{nazov}".')
+        rows = list(wb[nazov].iter_rows(values_only=True))
+        dvojica = tuple(x for x in (prezdravie(rows[1][1]), prezdravie(rows[1][2])) if x)
+        if len(dvojica) < 2:
+            sys.exit(f'Hárok „{nazov}" nemá v druhom riadku dvojicu animátorov.')
+        if dvojica in podla_dvojice:
+            sys.exit(f'Dvojica animátorov {dvojica} je v súbore dvakrát — '
+                     'podľa nej sa priraďujú bloky v prehľadovej tabuľke.')
+        animatori[g] = list(dvojica)
+        podla_dvojice[dvojica] = g
+        harky[g] = [(prezdravie(r[1]), prezdravie(r[2])) for r in rows[2:] if prezdravie(r[1])]
+
+    # 2) prehľadová tabuľka
+    if 'skupinky pre animátorov' not in wb.sheetnames:
+        sys.exit('V súbore chýba hárok „skupinky pre animátorov".')
+    ws = wb['skupinky pre animátorov']
+    tabulka = {}
+    aktualna = {}
+    for i, row in enumerate(ws.iter_rows(values_only=True), 1):
+        for base in (1, 6, 11):
+            b = [prezdravie(x) for x in (row[base:base + 4] + (None,) * 4)[:4]]
+            if b[0] == 'Animátori:':
+                dvojica = tuple(x for x in (b[1], b[2]) if x)
+                g = podla_dvojice.get(dvojica)
+                if g is None:
+                    sys.exit(f'Riadok {i}, stĺpec {base + 1}: dvojica animátorov {dvojica} '
+                             'nesedí so žiadnym hárkom po skupinkách. Skontroluj mená.')
+                aktualna[base] = g
+                tabulka.setdefault(g, [])
+            elif b[0] and b[1] and aktualna.get(base):
+                tabulka[aktualna[base]].append({'meno': b[0], 'priezvisko': b[1],
+                                                'rocnik': b[2] or None})
+
+    chyba = [g for g in range(1, N + 1) if g not in tabulka]
+    if chyba:
+        sys.exit(f'V prehľadovej tabuľke sa nenašli skupinky: {chyba}')
+
+    # 3) kontroly, ktoré musia prejsť
+    vsetky = [(g, (d['meno'], d['priezvisko'])) for g in tabulka for d in tabulka[g]]
+    videne = {}
+    for g, kluc in vsetky:
+        if kluc in videne:
+            sys.exit(f'Dieťa „{" ".join(kluc)}" je v tabuľke dvakrát '
+                     f'(skupinka {videne[kluc]} aj {g}). Oprav to v Exceli.')
+        videne[kluc] = g
+
+    # 4) porovnanie s hárkami — len upozornenie
+    rozdiely = []
+    for g in range(1, N + 1):
+        t = [(d['meno'], d['priezvisko']) for d in tabulka[g]]
+        h = harky[g]
+        chyba_v_harku = [x for x in t if x not in h]
+        navyse_v_harku = [x for x in h if x not in t]
+        if chyba_v_harku or navyse_v_harku:
+            rozdiely.append((g, chyba_v_harku, navyse_v_harku))
+    if rozdiely:
+        print('⚠️  Prehľadová tabuľka a hárky po skupinkách sa nezhodujú.')
+        print('    Použila sa TABUĽKA. Rozdiely (nech sa o nich vie):')
+        for g, chyba_v, navyse in rozdiely:
+            for x in chyba_v:
+                print(f'      sk.{g}: „{" ".join(x)}" je v tabuľke, ale nie v hárku {g}.skupinka')
+            for x in navyse:
+                print(f'      sk.{g}: „{" ".join(x)}" je v hárku {g}.skupinka, ale nie v tabuľke')
+        print()
+
+    return [{'cislo': g, 'animatori': animatori[g], 'deti': tabulka[g]} for g in range(1, N + 1)]
 
 
 def main():

@@ -252,14 +252,27 @@ aj ručne ako číslo náramku).
 
 ## Dáta detí
 
-`data/deti.json` je vygenerované zo súboru „skupinky – vytlačiť.xlsx".
+`data/deti.json` je vygenerované zo súboru „skupilnky – vytlačiť.xlsx".
 Keď sa zoznam detí zmení:
 
 ```bash
 pip3 install openpyxl
-python3 scripts/generuj-deti.py ~/Downloads/'skupinky - vytlačiť.xlsx'
+python3 scripts/generuj-deti.py ~/Downloads/'skupilnky - vytlačiť (1).xlsx'
+python3 scripts/over-deti.py  ~/Downloads/'skupilnky - vytlačiť (1).xlsx'
 npm test
 ```
+
+**Zdrojom pravdy je hárok „skupinky pre animátorov", nie hárky 1.skupinka…
+10.skupinka.** Tie sa v praxi opravujú menej dôsledne — v auguste 2026 v nich
+chýbala Sofia Soláriková (sk. 4) a Benjamin Bros (sk. 1) v nich bol vedený ako
+druhá „Hana Jankeje", takže v hárkoch vyzeralo, že jedno meno je tam dvakrát.
+V prehľadovej tabuľke bolo pritom všetko správne.
+
+Generátor si hárky po skupinkách aj tak načíta a **každý rozdiel vypíše**, nech
+sa o ňom vie. `scripts/over-deti.py` ide na to z druhej strany: vezme hotový
+`data/deti.json` a porovná ho s Excelom — mená, skupinky, animátorov, duplicity
+aj súvislosť čísel náramkov. Vracia nenulový kód, keď niečo nesedí, takže sa dá
+spustiť koľkokrát treba.
 
 Generátor je deterministický (pevné seedy), takže rovnaký Excel dá vždy rovnaké
 náramky. Podporené sú skupinky s 10 alebo 11 deťmi; pri inom počte to skript

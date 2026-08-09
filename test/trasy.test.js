@@ -127,17 +127,48 @@ test('štvrť skupinky je tam, kde ju manuál necháva v poslednom kole', () => 
 
 // --- 3. Deti sedia s Excelom -------------------------------------------------
 
-test('106 detí, čísla náramkov 1–106 bez dier a duplicít', () => {
-  assert.strictEqual(hra.DETI.length, 106);
+// Očakávané zloženie podľa hárku „skupinky pre animátorov" v súbore
+// „skupilnky - vytlačiť (1).xlsx" (stav 9. 8. 2026). Keď sa Excel zmení,
+// spustí sa scripts/generuj-deti.py a tieto čísla sa opravia sem — schválne
+// natvrdo, nech zmena v dátach nikdy neprejde ticho.
+const POCET_DETI = 107;
+const VELKOSTI = [10, 11, 11, 11, 10, 11, 11, 10, 11, 11];
+
+test(`${POCET_DETI} detí, čísla náramkov 1–${POCET_DETI} bez dier a duplicít`, () => {
+  assert.strictEqual(hra.DETI.length, POCET_DETI);
   const cisla = hra.DETI.map((d) => d.naramok).sort((a, b) => a - b);
-  assert.deepStrictEqual(cisla, Array.from({ length: 106 }, (_, i) => i + 1));
-  assert.strictEqual(new Set(hra.DETI.map((d) => d.id)).size, 106);
+  assert.deepStrictEqual(cisla, Array.from({ length: POCET_DETI }, (_, i) => i + 1));
+  assert.strictEqual(new Set(hra.DETI.map((d) => d.id)).size, POCET_DETI);
 });
 
-test('veľkosti skupiniek sedia so súborom „skupinky – vytlačiť"', () => {
-  const ocakavane = [10, 11, 11, 10, 10, 11, 11, 10, 11, 11];
+test('veľkosti skupiniek sedia s hárkom „skupinky pre animátorov"', () => {
+  assert.strictEqual(VELKOSTI.reduce((a, b) => a + b, 0), POCET_DETI);
   for (let g = 1; g <= N; g++) {
-    assert.strictEqual(hra.DETI.filter((d) => d.skupina === g).length, ocakavane[g - 1], `skupinka ${g}`);
+    assert.strictEqual(hra.DETI.filter((d) => d.skupina === g).length, VELKOSTI[g - 1], `skupinka ${g}`);
+  }
+});
+
+test('žiadne dieťa nie je v zozname dvakrát', () => {
+  // Presne toto sa raz stalo: „Hana Jankeje" bola v hárkoch po skupinkách
+  // v skupinke 1 aj 5, pričom tá prvá mala byť Benjamin Bros. Dve deti
+  // s tým istým menom by animátor pri skene nerozlíšil.
+  const pocty = new Map();
+  for (const d of hra.DETI) {
+    const kluc = `${d.meno} ${d.priezvisko}`.trim().toLocaleLowerCase('sk');
+    pocty.set(kluc, (pocty.get(kluc) || 0) + 1);
+  }
+  const duplicitne = [...pocty].filter(([, n]) => n > 1).map(([k]) => k);
+  assert.deepStrictEqual(duplicitne, [], `deti s rovnakým menom: ${duplicitne.join(', ')}`);
+});
+
+test('každé dieťa má meno, priezvisko a platnú skupinku', () => {
+  for (const d of hra.DETI) {
+    assert.ok(d.meno && d.meno.trim(), `${d.id} nemá meno`);
+    assert.ok(d.priezvisko && d.priezvisko.trim(), `${d.id} (${d.meno}) nemá priezvisko`);
+    assert.ok(Number.isInteger(d.skupina) && d.skupina >= 1 && d.skupina <= N,
+      `${d.id} má skupinku ${d.skupina}`);
+    assert.ok(Number.isInteger(d.trieda) && d.trieda >= 0 && d.trieda < hra.SABLONY.length,
+      `${d.id} má triedu ${d.trieda}`);
   }
 });
 
@@ -188,7 +219,7 @@ test('na každom stanovišti je v každom kole 10 alebo 11 detí', () => {
     for (let st = 0; st < N; st++) {
       assert.ok(o[r][st] === 10 || o[r][st] === 11, `kolo ${r + 1}, stanovište ${st}: ${o[r][st]} detí`);
     }
-    assert.strictEqual(o[r].reduce((a, b) => a + b, 0), 106);
+    assert.strictEqual(o[r].reduce((a, b) => a + b, 0), POCET_DETI);
   }
 });
 
@@ -334,7 +365,7 @@ test('čísla náramkov sú v súvislých blokoch podľa štartového stanoviš�
       assert.strictEqual(hra.trasaDietata(d)[0], blok.stanoviste, `náramok ${n}`);
     }
   }
-  assert.strictEqual(hra.STARTOVE_BLOKY.reduce((a, b) => a + (b.do - b.od + 1), 0), 106);
+  assert.strictEqual(hra.STARTOVE_BLOKY.reduce((a, b) => a + (b.do - b.od + 1), 0), POCET_DETI);
 });
 
 // --- 8. Vyhľadávanie kódu ----------------------------------------------------

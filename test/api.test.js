@@ -33,10 +33,10 @@ async function test(nazov, fn) { await fn(); testov++; console.log('  ✓ ' + na
   console.log('api.test.js');
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
 
-  await test('/api/info vráti 10 stanovíšť a 106 detí', async () => {
+  await test('/api/info vráti 10 stanovíšť a všetky deti', async () => {
     const i = await volaj('info');
     assert.strictEqual(i.stanovistia.length, 10);
-    assert.strictEqual(i.pocet_deti, 106);
+    assert.strictEqual(i.pocet_deti, hra.DETI.length);
     assert.strictEqual(i.rezim_db, 'subor');
   });
 
@@ -148,7 +148,7 @@ async function test(nazov, fn) { await fn(); testov++; console.log('  ✓ ' + na
     }
   });
 
-  await test('CELÁ HRA: 106 detí × 10 kôl prejde bez jediného zlého skenu', async () => {
+  await test(`CELÁ HRA: ${hra.DETI.length} detí × 10 kôl prejde bez jediného zlého skenu`, async () => {
     let skenov = 0;
     let presunov = 0;
     for (let r = 0; r < 10; r++) {
@@ -165,13 +165,13 @@ async function test(nazov, fn) { await fn(); testov++; console.log('  ✓ ' + na
         }
       }
     }
-    assert.strictEqual(skenov, 1060);
+    assert.strictEqual(skenov, hra.DETI.length * 10);
     // Podľa profilu trás: 9+7+5+3+0+3+5+7+9 = 48 prevedení na stanovište a hru,
     // z toho 10 stanovíšť ⇒ 480, plus prevedenia jedenástych detí.
-    assert.ok(presunov >= 480 && presunov <= 540, `prevedení bolo ${presunov}`);
+    assert.ok(presunov >= 480 && presunov <= 560, `prevedení bolo ${presunov}`);
 
     const stav = await volaj('stav');
-    assert.strictEqual(stav.hotovo, 106);
+    assert.strictEqual(stav.hotovo, hra.DETI.length);
     // a deti naozaj skončili tam, kde majú
     for (const dieta of stav.deti) {
       assert.strictEqual(dieta.postup, 10);
