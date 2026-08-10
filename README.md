@@ -274,8 +274,14 @@ povoliť sa to dá prepínačom `--povol-presun`. Rozdať čísla úplne nanovo 
 cez `--od-nuly`, ale len **pred prvou tlačou**.
 
 `--nahrada "A=B"` rieši prípad, keď je niekto v Exceli pod iným menom, než aké
-má platiť (Turlík/Kullač, preklepy v diakritike). Platí na deti aj animátorov
-a použije sa aj v `over-deti.py`, nech obe strany porovnávajú to isté.
+má platiť (preklepy v diakritike). Platí na deti aj animátorov a použije sa aj
+v `over-deti.py`, nech obe strany porovnávajú to isté.
+
+`--vymen "Kto odchádza=Kto prichádza"` rieši prípad, keď dieťa nepríde a jeho
+miesto zaberie iné. Nové dieťa **zdedí náramok, QR kód, skupinku aj trasu** —
+mení sa len meno, takže stačí vytlačiť ten jeden štítok nanovo. Bez tohto
+prepínača by sa ten, čo odišiel, zmazal a nový by dostal ďalšie voľné číslo,
+čo je zbytočná zmena.
 
 Deti pridané až po tlači dostávajú ďalšie voľné čísla (108, 109…). Tie
 nezapadnú do štartových blokov podľa čísel, takže sú v rozpise vypísané zvlášť —

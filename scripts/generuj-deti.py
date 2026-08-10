@@ -18,6 +18,11 @@ naozaj má stať, treba to povoliť prepínačom --povol-presun (a vytlačiť na
 Prepínače:
   --nahrada "Meno Priezvisko=Iné Meno"   v Exceli je niekto pod iným menom;
                                          použije sa meno vpravo (dá sa opakovať)
+  --vymen "Kto odchádza=Kto prichádza"   na náramku pôvodného dieťaťa bude
+                                         odteraz niekto iný. Číslo, QR kód,
+                                         skupinka aj trasa ostávajú — mení sa
+                                         len meno, takže stačí vytlačiť ten
+                                         jeden štítok nanovo.
   --povol-presun                         dovolí presun dieťaťa do inej skupinky
   --od-nuly                              zahodí doterajšie priradenie a rozdá
                                          čísla nanovo (LEN pred prvou tlačou!)
@@ -227,6 +232,7 @@ def volna_trieda(profil, velkost):
 def main():
     argv = sys.argv[1:]
     nahrady = {}
+    vymeny = {}
     povol_presun = '--povol-presun' in argv
     od_nuly = '--od-nuly' in argv
     while '--nahrada' in argv:
@@ -236,6 +242,14 @@ def main():
         except (IndexError, ValueError):
             sys.exit('--nahrada čakala tvar "Meno Priezvisko=Iné Meno Priezvisko"')
         nahrady[kluc(*zle.strip().split(' ', 1))] = spravne.strip().split(' ', 1)
+        del argv[i:i + 2]
+    while '--vymen' in argv:
+        i = argv.index('--vymen')
+        try:
+            odchadza, prichadza = argv[i + 1].split('=', 1)
+        except (IndexError, ValueError):
+            sys.exit('--vymen čakala tvar "Kto odchádza=Kto prichádza"')
+        vymeny[kluc(*odchadza.strip().split(' ', 1))] = prichadza.strip().split(' ', 1)
         del argv[i:i + 2]
     cesty = [a for a in argv if not a.startswith('--')]
     if not cesty:
@@ -269,6 +283,24 @@ def main():
         print()
 
     doterajsie = {} if od_nuly else nacitaj_doterajsie()
+
+    # --- výmena na náramku ---------------------------------------------------
+    # Dieťa nepríde a jeho miesto zaberie iné. Náramok, QR kód, skupinka aj
+    # trasa ostávajú — nové dieťa ich zdedí. Bez tohto by sa ten, čo odišiel,
+    # zmazal a nový by dostal ďalšie voľné číslo, čo je zbytočná zmena.
+    for stary_kluc, novy in vymeny.items():
+        zaznam = doterajsie.pop(stary_kluc, None)
+        if zaznam is None:
+            sys.exit(f'--vymen: „{stary_kluc}" sa v doterajších dátach nenašlo.')
+        meno, priezvisko = (novy + [''])[:2]
+        print(f"  výmena: náramok {zaznam['naramok']} (sk.{zaznam['skupina']}) "
+              f"\u201e{zaznam['meno']} {zaznam['priezvisko']}\u201c "
+              f"\u2192 \u201e{meno} {priezvisko}\u201c "
+              f"\u2014 vytlač preň nový štítok")
+        zaznam = {**zaznam, 'meno': meno, 'priezvisko': priezvisko}
+        doterajsie[kluc(meno, priezvisko)] = zaznam
+    if vymeny:
+        print()
     if od_nuly and (KOREN / 'data' / 'deti.json').exists():
         print('⚠️  --od-nuly: doterajšie čísla náramkov sa zahadzujú a rozdávajú nanovo.')
         print('    Ak sú náramky už vytlačené, TOTO ICH ZNEPLATNÍ.\n')

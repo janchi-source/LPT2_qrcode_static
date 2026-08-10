@@ -9,8 +9,9 @@
 // Keď do tábora naozaj pribudne alebo odíde dieťa, opraví sa najprv Excel,
 // potom sa spustí scripts/generuj-deti.py — a až potom sa doplní sem.
 //
-// Stav: 107 detí odsúhlasených 9. 8. 2026 + bratia Michalíkovci, ktorí pribudli
-// až po vytlačení náramkov (dostali čísla 108 a 109).
+// Stav: 107 detí odsúhlasených 9. 8. 2026, plus úpravy po vytlačení náramkov:
+//   • bratia Michalíkovci pribudli (čísla 108 a 109),
+//   • Tobiáš Turlík prebral náramok 97 po Ondrejovi Kullačovi.
 const assert = require('assert');
 const hra = require('../lib/hra');
 
@@ -68,7 +69,6 @@ const ZOZNAM = [
   ['Alexander', 'Kozák'],
   ['Nikola', 'Krnčanová'],
   ['Tamarka', 'Kubov'],
-  ['Ondrej', 'Kullač'],
   ['Diana', 'Kurucová'],
   ['Dominika', 'Kuzmická'],
   ['Filip', 'Lendel'],
@@ -119,6 +119,7 @@ const ZOZNAM = [
   ['Kristína', 'Tomčákovská'],
   ['Barbora', 'Tomová'],
   ['Laura', 'Trgová'],
+  ['Tobiáš', 'Turlík'],
   ['Ela Mária', 'Turočeková'],
   ['Sofia Anna', 'Turočeková'],
   ['Sofi', 'Tusinovschi'],
