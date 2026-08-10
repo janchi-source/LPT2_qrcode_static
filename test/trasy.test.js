@@ -145,17 +145,22 @@ test('štvrť skupinky je tam, kde ju manuál necháva v poslednom kole', () => 
 // --- 3. Deti sedia s Excelom -------------------------------------------------
 
 // Očakávané zloženie podľa hárku „skupinky pre animátorov" v súbore
-// „skupilnky - vytlačiť (1).xlsx" (stav 9. 8. 2026). Keď sa Excel zmení,
+// „skupilnky - vytlačiť (2).xlsx" (stav 9. 8. 2026), po výmene Tobiáša Turlíka
+// za Ondreja Kullača a po pridaní bratov Michalíkovcov. Keď sa Excel zmení,
 // spustí sa scripts/generuj-deti.py a tieto čísla sa opravia sem — schválne
 // natvrdo, nech zmena v dátach nikdy neprejde ticho.
-const POCET_DETI = 107;
-const VELKOSTI = [10, 11, 11, 11, 10, 11, 11, 10, 11, 11];
+const POCET_DETI = 109;
+const VELKOSTI = [11, 11, 11, 11, 10, 11, 11, 11, 11, 11];
 
-test(`${POCET_DETI} detí, čísla náramkov 1–${POCET_DETI} bez dier a duplicít`, () => {
+test(`${POCET_DETI} detí, čísla náramkov bez duplicít`, () => {
   assert.strictEqual(hra.DETI.length, POCET_DETI);
-  const cisla = hra.DETI.map((d) => d.naramok).sort((a, b) => a - b);
-  assert.deepStrictEqual(cisla, Array.from({ length: POCET_DETI }, (_, i) => i + 1));
-  assert.strictEqual(new Set(hra.DETI.map((d) => d.id)).size, POCET_DETI);
+  // Súvislý rad od 1 sa nevyžaduje: deti pridané už po vytlačení náramkov
+  // dostávajú ďalšie voľné čísla a číslo dieťaťa, ktoré nakoniec nepríde,
+  // ostane nevyužité. Podstatné je, že sa žiadne číslo ani QR kód neopakuje.
+  const cisla = hra.DETI.map((d) => d.naramok);
+  assert.strictEqual(new Set(cisla).size, POCET_DETI, 'dva náramky s rovnakým číslom');
+  assert.strictEqual(new Set(hra.DETI.map((d) => d.id)).size, POCET_DETI, 'dva rovnaké QR kódy');
+  assert.ok(Math.min(...cisla) >= 1);
 });
 
 test('veľkosti skupiniek sedia s hárkom „skupinky pre animátorov"', () => {
@@ -383,6 +388,12 @@ test('čísla náramkov sú v súvislých blokoch podľa štartového stanoviš�
     }
   }
   assert.strictEqual(hra.STARTOVE_BLOKY.reduce((a, b) => a + (b.do - b.od + 1), 0), POCET_DETI);
+  // Bloky sa nesmú prekrývať — inak by dve deti dostali to isté číslo náramku.
+  const zoradene = [...hra.STARTOVE_BLOKY].sort((a, b) => a.od - b.od);
+  for (let i = 1; i < zoradene.length; i++) {
+    assert.ok(zoradene[i].od > zoradene[i - 1].do,
+      `bloky ${zoradene[i - 1].od}–${zoradene[i - 1].do} a ${zoradene[i].od}–${zoradene[i].do} sa prekrývajú`);
+  }
 });
 
 // --- 8. Vyhľadávanie kódu ----------------------------------------------------

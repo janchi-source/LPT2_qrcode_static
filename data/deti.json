@@ -962,6 +962,24 @@
    "rocnik": "2. ročník",
    "skupina": 4,
    "trieda": 4
+  },
+  {
+   "id": "D108",
+   "naramok": 108,
+   "meno": "Oliver",
+   "priezvisko": "Michalík",
+   "rocnik": "2.ročník",
+   "skupina": 1,
+   "trieda": 2
+  },
+  {
+   "id": "D109",
+   "naramok": 109,
+   "meno": "Šimon",
+   "priezvisko": "Michalík",
+   "rocnik": "2. ročník",
+   "skupina": 8,
+   "trieda": 2
   }
  ],
  "animatori": {
@@ -1043,6 +1061,11 @@
    "do": 75
   },
   {
+   "stanoviste": 6,
+   "od": 108,
+   "do": 108
+  },
+  {
    "stanoviste": 7,
    "od": 76,
    "do": 86
@@ -1056,6 +1079,11 @@
    "stanoviste": 9,
    "od": 98,
    "do": 107
+  },
+  {
+   "stanoviste": 9,
+   "od": 109,
+   "do": 109
   }
  ]
 }

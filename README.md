@@ -252,31 +252,40 @@ aj ručne ako číslo náramku).
 
 ## Dáta detí
 
-`data/deti.json` je vygenerované zo súboru „skupilnky – vytlačiť.xlsx".
-Keď sa zoznam detí zmení:
+`data/deti.json` je vygenerované z Excelu. Generátor je **prírastkový**:
+deťom, ktoré v ňom už sú, nemení nič — ani číslo náramku, ani QR kód, ani
+skupinku, ani trasu. Nové deti len pridá s ďalšími voľnými číslami.
 
 ```bash
 pip3 install openpyxl
-python3 scripts/generuj-deti.py ~/Downloads/'skupilnky - vytlačiť (1).xlsx'
-python3 scripts/over-deti.py  ~/Downloads/'skupilnky - vytlačiť (1).xlsx'
+python3 scripts/generuj-deti.py ~/Downloads/'skupilnky - vytlačiť (2).xlsx' \
+    --nahrada "Tobiáš Turlík=Ondrej Kullač" \
+    --nahrada "Oliver MichalÍk=Oliver Michalík" \
+    --nahrada "Línia Šturcová=Lívia Šturcová"
+python3 scripts/over-deti.py ~/Downloads/'skupilnky - vytlačiť (2).xlsx' <tie isté --nahrada>
 npm test
 ```
+
+**Prečo prírastkový:** náramky sa tlačia a lepia deťom na ruku. Keby generátor
+rozdal čísla nanovo, každý vytlačený QR kód by odrazu patril inému dieťaťu.
+Preto berie doterajší `data/deti.json` ako základ a keď by Excel presunul už
+existujúce dieťa do inej skupinky (čo mu mení trasu), **skončí chybou** —
+povoliť sa to dá prepínačom `--povol-presun`. Rozdať čísla úplne nanovo sa dá
+cez `--od-nuly`, ale len **pred prvou tlačou**.
+
+`--nahrada "A=B"` rieši prípad, keď je niekto v Exceli pod iným menom, než aké
+má platiť (Turlík/Kullač, preklepy v diakritike). Platí na deti aj animátorov
+a použije sa aj v `over-deti.py`, nech obe strany porovnávajú to isté.
+
+Deti pridané až po tlači dostávajú ďalšie voľné čísla (108, 109…). Tie
+nezapadnú do štartových blokov podľa čísel, takže sú v rozpise vypísané zvlášť —
+pri registrácii ich treba poslať na ich stanovište ručne.
 
 **Zdrojom pravdy je hárok „skupinky pre animátorov", nie hárky 1.skupinka…
 10.skupinka.** Tie sa v praxi opravujú menej dôsledne — v auguste 2026 v nich
 chýbala Sofia Soláriková (sk. 4) a Benjamin Bros (sk. 1) v nich bol vedený ako
-druhá „Hana Jankeje", takže v hárkoch vyzeralo, že jedno meno je tam dvakrát.
-V prehľadovej tabuľke bolo pritom všetko správne.
-
-Generátor si hárky po skupinkách aj tak načíta a **každý rozdiel vypíše**, nech
-sa o ňom vie. `scripts/over-deti.py` ide na to z druhej strany: vezme hotový
-`data/deti.json` a porovná ho s Excelom — mená, skupinky, animátorov, duplicity
-aj súvislosť čísel náramkov. Vracia nenulový kód, keď niečo nesedí, takže sa dá
-spustiť koľkokrát treba.
-
-Generátor je deterministický (pevné seedy), takže rovnaký Excel dá vždy rovnaké
-náramky. Podporené sú skupinky s 10 alebo 11 deťmi; pri inom počte to skript
-povie a treba upraviť `POCTY`.
+druhá „Hana Jankeje". V prehľadovej tabuľke bolo pritom všetko správne.
+Generátor si hárky aj tak načíta a **každý rozdiel vypíše**.
 
 `POCTY` je jediné, čo sa pri trasách dá voliť (koľko detí ide ktorou z piatich
 trás). Samotné trasy meniť netreba — iné pravidlá manuálu nedovoľujú.

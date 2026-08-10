@@ -8,6 +8,9 @@
 //
 // Keď do tábora naozaj pribudne alebo odíde dieťa, opraví sa najprv Excel,
 // potom sa spustí scripts/generuj-deti.py — a až potom sa doplní sem.
+//
+// Stav: 107 detí odsúhlasených 9. 8. 2026 + bratia Michalíkovci, ktorí pribudli
+// až po vytlačení náramkov (dostali čísla 108 a 109).
 const assert = require('assert');
 const hra = require('../lib/hra');
 
@@ -77,6 +80,8 @@ const ZOZNAM = [
   ['Tatianka', 'Macová'],
   ['Paulína', 'Markovičová'],
   ['Petra', 'Martinkovičová'],
+  ['Oliver', 'Michalík'],
+  ['Šimon', 'Michalík'],
   ['Alexandra', 'Mihalenková'],
   ['Tobias', 'Moravek'],
   ['Isabelle', 'Mruk'],

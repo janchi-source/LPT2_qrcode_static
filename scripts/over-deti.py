@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """Porovná data/deti.json s Excelom. Nezávisle od generátora.
 
-    python3 scripts/over-deti.py ~/Downloads/'skupilnky - vytlačiť (1).xlsx'
+    python3 scripts/over-deti.py ~/Downloads/'skupilnky - vytlačiť (2).xlsx' \\
+        --nahrada "Tobiáš Turlík=Ondrej Kullač" --nahrada "Oliver MichalÍk=Oliver Michalík"
+
+Prepínač --nahrada je ten istý ako v generuj-deti.py: v Exceli je niekto pod
+iným menom, než aké má v appke platiť. Bez neho by overovač takú výmenu hlásil
+ako rozdiel.
 
 Prečo zvlášť a nie ako súčasť generátora: generátor Excel číta, takže si vlastnú
 chybu v čítaní nemá ako všimnúť. Tento skript ide na to z druhej strany —
@@ -44,7 +49,9 @@ def nacitaj_excel(cesta):
     for g in range(1, N + 1):
         rows = list(wb[f'{g}.skupinka'].iter_rows(values_only=True))
         dvojica = tuple(x for x in (txt(rows[1][1]), txt(rows[1][2])) if x)
-        podla_dvojice[dvojica] = g
+        # Bloky sa párujú podľa PRIEZVISKA prvého animátora — krstné mená sa
+        # v Exceli píšu raz tak, raz onak (Ján/Janko), presné porovnanie zlyhá.
+        podla_dvojice[zjednodus(dvojica[0].split()[-1])] = g
         animatori[g] = list(dvojica)
         harky[g] = [(txt(r[1]), txt(r[2])) for r in rows[2:] if txt(r[1])]
 
@@ -54,9 +61,10 @@ def nacitaj_excel(cesta):
         for base in (1, 6, 11):
             b = [txt(x) for x in (row[base:base + 4] + (None,) * 4)[:4]]
             if b[0] == 'Animátori:':
-                g = podla_dvojice.get(tuple(x for x in (b[1], b[2]) if x))
+                g = podla_dvojice.get(zjednodus(b[1].split()[-1])) if b[1] else None
                 if g is None:
-                    chyby.append(f'riadok {i}, stĺpec {base + 1}: neznáma dvojica animátorov')
+                    chyby.append(f'riadok {i}, stĺpec {base + 1}: animátor „{b[1]}" '
+                                 'nesedí so žiadnym hárkom po skupinkách')
                 akt[base] = g
                 if g:
                     tabulka.setdefault(g, [])
@@ -66,9 +74,29 @@ def nacitaj_excel(cesta):
 
 
 def main():
-    if len(sys.argv) < 2:
-        sys.exit('Použitie: python3 scripts/over-deti.py <cesta k xlsx>')
-    tabulka, harky, animatori = nacitaj_excel(sys.argv[1])
+    argv = sys.argv[1:]
+    nahrady = {}
+    while '--nahrada' in argv:
+        i = argv.index('--nahrada')
+        try:
+            zle, spravne = argv[i + 1].split('=', 1)
+        except (IndexError, ValueError):
+            sys.exit('--nahrada čakala tvar "Meno Priezvisko=Iné Meno Priezvisko"')
+        nahrady[zjednodus(zle)] = tuple(spravne.strip().split(' ', 1))
+        del argv[i:i + 2]
+    cesty = [a for a in argv if not a.startswith('--')]
+    if not cesty:
+        sys.exit('Použitie: python3 scripts/over-deti.py <cesta k xlsx> [--nahrada "A=B"]')
+
+    tabulka, harky, animatori = nacitaj_excel(cesty[0])
+    if nahrady:
+        for g in tabulka:
+            tabulka[g] = [nahrady.get(zjednodus(' '.join(x)), x) for x in tabulka[g]]
+        for g in harky:
+            harky[g] = [nahrady.get(zjednodus(' '.join(x)), x) for x in harky[g]]
+        for g in animatori:
+            animatori[g] = [' '.join(nahrady[zjednodus(x)]) if zjednodus(x) in nahrady else x
+                            for x in animatori[g]]
     data = json.loads((KOREN / 'data' / 'deti.json').read_text(encoding='utf-8'))
     deti = data['deti']
 
@@ -95,8 +123,11 @@ def main():
 
     # --- 2. animátori --------------------------------------------------------
     for g in range(1, N + 1):
-        if data['animatori'].get(str(g)) != animatori[g]:
-            chyby.append(f'sk.{g}: animátori {data["animatori"].get(str(g))} != {animatori[g]}')
+        v_datach = data['animatori'].get(str(g)) or []
+        if [zjednodus(x) for x in v_datach] != [zjednodus(x) for x in animatori[g]]:
+            chyby.append(f'sk.{g}: animátori {v_datach} != {animatori[g]}')
+        elif v_datach != animatori[g]:
+            varovania.append(f'sk.{g}: animátori v dátach {v_datach} vs v Exceli {animatori[g]}')
 
     # --- 3. duplicity a úplnosť ---------------------------------------------
     mena = Counter(zjednodus(f'{d["meno"]} {d["priezvisko"]}') for d in deti)
@@ -104,9 +135,14 @@ def main():
         if n > 1:
             chyby.append(f'dieťa „{m}" je v dátach {n}×')
 
-    naramky = sorted(d['naramok'] for d in deti)
-    if naramky != list(range(1, len(deti) + 1)):
-        chyby.append('čísla náramkov nie sú súvislý rad od 1')
+    naramky = [d['naramok'] for d in deti]
+    if len(set(naramky)) != len(naramky):
+        chyby.append('dve deti majú to isté číslo náramku')
+    # Súvislý rad sa nevyžaduje — deti pridané po vytlačení náramkov dostávajú
+    # ďalšie voľné čísla. Diery sú v poriadku, duplicity nie.
+    diery = sorted(set(range(1, max(naramky) + 1)) - set(naramky))
+    if diery:
+        varovania.append(f'nevyužité čísla náramkov: {diery}')
     if len({d['id'] for d in deti}) != len(deti):
         chyby.append('duplicitné ID (QR kódy)')
 
